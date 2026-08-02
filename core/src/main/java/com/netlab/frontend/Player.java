@@ -1,45 +1,36 @@
 package com.netlab.frontend;
 
-class Player {
+public class Player {
     String name;
     int hp;
-    int powerLevel = 0;
-    int score = 0;
+    int power;
+    int spellCards;
 
-    Player(String name, int hp) {
+    public Player(String name, int hp, int power, int spellCards) {
         this.name = name;
         this.hp = hp;
+        this.power = power;
+        this.spellCards = spellCards;
     }
 
-    void shoot(Enemy enemy, int dmg) {
-        enemy.takeDamage(dmg);
-    }
-}
-
-class Enemy {
-    String name;
-    int hp;
-
-    Enemy(String name, int hp) {
-        this.name = name;
-        this.hp = hp;
+    public void shoot(Enemy target) {
+        int damage = 10 + power;
+        System.out.println(name + " shoots " + target.name + " dealing " + damage + " DMG!");
+        target.takeDamage(damage);
     }
 
-    void takeDamage(int dmg) {
-        System.out.println(name + " takes " + dmg + " DMG!");
-        this.hp = -dmg;
-        if (this.hp <= 0) {
-            System.out.println(name + " dies!");
+    public void takeDamage(int damage) {
+        this.hp -= damage;
+        if (this.hp < 0) {
+            this.hp = 0;
+        }
+        System.out.println(name + " took " + damage + " damage! Remaining HP: " + this.hp);
+        if (this.hp == 0) {
+            System.out.println(name + " was defeated (Pichuun~)! ");
         }
     }
-}
 
-class Test {
-    public static void  main(String[] args) {
-        Player player = new Player("Akbar", 10);
-        Enemy enemy = new Enemy("Perry", 10);
-
-        player.shoot(enemy, 10);
+    public boolean isAlive() {
+        return this.hp > 0;
     }
 }
-
