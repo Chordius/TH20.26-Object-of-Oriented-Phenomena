@@ -2,35 +2,70 @@ package com.netlab.frontend;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
+import java.util.ArrayList;
+import java.util.List;
 
-/** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends ApplicationAdapter {
-    private SpriteBatch batch;
-    private Texture image;
+    private ShapeRenderer shapeRenderer;
+
+    private Player player;
+    private Fairy fairy;
+    private Boss boss;
+    private Item powerItem;
+    private Item pointItem;
+    private List<GameObject> gameObjects;
 
     @Override
     public void create() {
-        batch = new SpriteBatch();
-        image = new Texture("libgdx.png");
+        shapeRenderer = new ShapeRenderer();
+        gameObjects = new ArrayList<>();
 
-        System.out.println("Hello World!");
+        // 1. Player: Red square (stationary) at bottom
+        player = new Player(280, 40, "Reimu Hakurei", 100, 15, 3);
+        
+        // 2. Fairy: Pink square (stationary, small)
+        fairy = new Fairy(150, 380, "Stage 1 Fairy", 20);
+
+        // 3. Boss: Blue square (stationary, larger size)
+        boss = new Boss(380, 400, "Cirno", 150);
+
+        // 4. Items: White squares (moving downwards linearly)
+        powerItem = new Item(200, 450, 16, 16, 80f, "Power");
+        pointItem = new Item(320, 480, 12, 12, 120f, "Point");
+
+        gameObjects.add(player);
+        gameObjects.add(fairy);
+        gameObjects.add(boss);
+        gameObjects.add(powerItem);
+        gameObjects.add(pointItem);
     }
 
     @Override
     public void render() {
-        ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
-        batch.begin();
-        batch.draw(image, 140, 210);
-        batch.end();
+        float delta = Gdx.graphics.getDeltaTime();
+
+        // Update logic: items move downwards linearly
+        for (GameObject obj : gameObjects) {
+            obj.update(delta);
+        }
+
+        // Clear screen
+        ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
+
+        // Render filled hitboxes with ShapeRenderer
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        for (GameObject obj : gameObjects) {
+            obj.render(shapeRenderer);
+        }
+        shapeRenderer.end();
     }
 
     @Override
     public void dispose() {
-        batch.dispose();
-        image.dispose();
+        if (shapeRenderer != null) {
+            shapeRenderer.dispose();
+        }
     }
 }

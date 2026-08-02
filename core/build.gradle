@@ -8,3 +8,8 @@ dependencies {
     implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"
   }
 }
+
+tasks.register('runTest', JavaExec) {
+    mainClass = 'com.netlab.frontend.Test'
+    classpath = sourceSets.main.runtimeClasspath
+}
