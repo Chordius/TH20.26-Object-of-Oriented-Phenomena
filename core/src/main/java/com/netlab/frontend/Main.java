@@ -5,14 +5,16 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.netlab.frontend.systems.AssetManager;
-import com.netlab.frontend.systems.EntityFactory;
 import com.netlab.frontend.objects.GameObject;
 import com.netlab.frontend.objects.Player;
 import com.netlab.frontend.objects.enemies.Boss;
 import com.netlab.frontend.objects.enemies.Fairy;
 import com.netlab.frontend.objects.items.Item;
 import com.netlab.frontend.objects.items.ItemType;
+import com.netlab.frontend.systems.AssetManager;
+import com.netlab.frontend.systems.BulletManager;
+import com.netlab.frontend.systems.CollisionReferee;
+import com.netlab.frontend.systems.EntityFactory;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -28,17 +30,24 @@ public class Main extends ApplicationAdapter {
     private Item pointItem;
     private List<GameObject> entities;
 
+    private BulletManager bulletManager;
+    private CollisionReferee collisionReferee;
+    private float enemyShootTimer = 0f;
+
     @Override
     public void create() {
         batch = new SpriteBatch();
         entities = new ArrayList<>();
+        bulletManager = new BulletManager();
+        collisionReferee = new CollisionReferee();
 
-        // 1. Dynamic Asset Registration (No switch statements inside AssetManager!)
+        // 1. Dynamic Asset Registration (AssetManager - Singleton + Flyweight)
         AssetManager assets = AssetManager.getInstance();
         assets.registerAnimationFromSheet("player_idle", "player.png", 32, 48, 0, 4, 0.25f);
         assets.registerAnimationFromSheet("fairy_idle", "fairy.png", 32, 32, 1, 8, 0.125f);
         assets.registerAnimationFromSheet("boss_idle", "cirno.png", 48, 64, 1, 4, 0.25f);
         assets.registerRegionFromSheet("bullet_amulet", "bullets_small.png", 16, 16, 6, 0);
+        assets.registerRegionFromSheet("bullet_danmaku", "bullets_small.png", 16, 16, 2, 0);
         assets.registerRegionFromSheet("item_power", "items.png", 16, 16, 0, 0);
         assets.registerRegionFromSheet("item_point", "items.png", 16, 16, 0, 2);
 
@@ -60,39 +69,39 @@ public class Main extends ApplicationAdapter {
     public void render() {
         float delta = Gdx.graphics.getDeltaTime();
 
-        // 1. Check Player Bullet shooting input (Key Z)
+        // 1. Check Player Bullet shooting input (Key Z -> BulletManager Pooling & Strategy Pattern)
         if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
-            entities.add(player.shootBullet());
+            player.shootBullet(bulletManager);
         }
 
-        // 2. Generic update & safe removal of off-screen/destroyed entities using updateAndClean<T>()
+        // 2. Periodic Enemy Bullet Shooting (Every 1.5s via BulletManager Pooling & Strategy Pattern)
+        enemyShootTimer += delta;
+        if (enemyShootTimer >= 1.5f) {
+            boss.shootBullet(bulletManager);
+            fairy.shootBullet(bulletManager);
+            enemyShootTimer = 0f;
+        }
+
+        // 3. Generic update & safe removal of standard entities
         updateAndClean(entities, delta, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        // 3. Collision detection between active entities
-        for (int i = 0; i < entities.size(); i++) {
-            for (int j = i + 1; j < entities.size(); j++) {
-                GameObject a = entities.get(i);
-                GameObject b = entities.get(j);
+        // 4. Object Pool Update (BulletManager)
+        bulletManager.update(delta, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-                if (!a.isDestroyed() && !b.isDestroyed()) {
-                    if (a.getCoreHitbox().overlaps(b.getCoreHitbox())) {
-                        a.onCollision(b);
-                        b.onCollision(a);
-                    }
-                }
-            }
-        }
+        // 5. Mediator Pattern Collision Resolution (CollisionReferee - Core vs Graze detection)
+        collisionReferee.resolveCollisions(player, entities, bulletManager);
 
-        // 4. Clear screen
+        // 6. Clear screen
         ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
 
-        // 5. Render active entity sprites/animations with SpriteBatch
+        // 7. Render active entity sprites and pooled bullets with SpriteBatch
         batch.begin();
         for (GameObject entity : entities) {
             if (!entity.isDestroyed()) {
                 entity.render(batch);
             }
         }
+        bulletManager.render(batch);
         batch.end();
     }
 

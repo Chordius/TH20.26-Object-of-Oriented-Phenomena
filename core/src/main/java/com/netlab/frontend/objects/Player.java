@@ -3,13 +3,14 @@ package com.netlab.frontend.objects;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
-import com.netlab.frontend.objects.bullets.Bullet;
 import com.netlab.frontend.objects.items.Item;
 import com.netlab.frontend.objects.items.ItemType;
+import com.netlab.frontend.objects.patterns.LinearShot;
+import com.netlab.frontend.objects.patterns.ShootingPattern;
 import com.netlab.frontend.objects.enemies.Boss;
 import com.netlab.frontend.objects.enemies.Enemy;
 import com.netlab.frontend.objects.enemies.Fairy;
-import com.netlab.frontend.systems.EntityFactory;
+import com.netlab.frontend.systems.BulletManager;
 
 public class Player extends GameObject {
     private String name;
@@ -17,6 +18,7 @@ public class Player extends GameObject {
     private int power;
     private int spellCards;
     private long score;
+    private ShootingPattern shootingPattern;
 
     public Player(String name, int hp, int power, int spellCards) {
         super(280, 40, 32, 48, 200f, Color.RED);
@@ -25,6 +27,7 @@ public class Player extends GameObject {
         this.power = power;
         this.spellCards = spellCards;
         this.score = 0;
+        this.shootingPattern = new LinearShot(400f); // Default Strategy Pattern
     }
 
     public Player(float x, float y, String name, int hp, int power, int spellCards) {
@@ -34,6 +37,7 @@ public class Player extends GameObject {
         this.power = power;
         this.spellCards = spellCards;
         this.score = 0;
+        this.shootingPattern = new LinearShot(400f); // Default Strategy Pattern
     }
 
     @Override
@@ -57,10 +61,12 @@ public class Player extends GameObject {
         }
     }
 
-    public Bullet shootBullet() {
-        int damage = 10 + power;
-        System.out.println(name + " shoots bullet dealing " + damage + " DMG!");
-        return EntityFactory.createPlayerBullet(x + width / 2 - 4, y + height, damage);
+    public void shootBullet(BulletManager bulletManager) {
+        if (shootingPattern != null) {
+            shootingPattern.execute(x + width / 2 - 4, y + height, bulletManager, true);
+        } else {
+            bulletManager.spawnPlayerBullet(x + width / 2 - 4, y + height, 0, 400f, 10 + power);
+        }
     }
 
     public void moveUp(float delta) { this.y += speed * delta; }
@@ -144,6 +150,10 @@ public class Player extends GameObject {
     public boolean isAlive() {
         return this.hp > 0;
     }
+
+    // Strategy Pattern getter & setter
+    public ShootingPattern getShootingPattern() { return shootingPattern; }
+    public void setShootingPattern(ShootingPattern shootingPattern) { this.shootingPattern = shootingPattern; }
 
     // Encapsulation getters and setters
     public String getName() { return name; }

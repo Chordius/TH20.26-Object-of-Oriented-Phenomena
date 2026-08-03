@@ -8,34 +8,68 @@ import com.netlab.frontend.objects.enemies.Enemy;
 public class Bullet extends GameObject {
     private BulletType bulletType;
     private int damage;
+    private float vx;
+    private float vy;
+    private boolean isPlayerBullet;
+    private boolean grazed;
 
     public Bullet(float x, float y, BulletType bulletType, int damage) {
         super(x, y, 16, 16, 400f, Color.YELLOW);
         this.bulletType = bulletType;
         this.damage = damage;
+        this.vx = 0f;
+        this.vy = 400f;
+        this.isPlayerBullet = true;
+        this.grazed = false;
     }
 
     public Bullet(float x, float y, float speed, BulletType bulletType, int damage) {
         super(x, y, 16, 16, speed, Color.YELLOW);
         this.bulletType = bulletType;
         this.damage = damage;
+        this.vx = 0f;
+        this.vy = speed;
+        this.isPlayerBullet = true;
+        this.grazed = false;
+    }
+
+    // Pool Re-initialization for Object Pool Pattern
+    public void init(float x, float y, float vx, float vy, BulletType bulletType, int damage, boolean isPlayerBullet) {
+        this.x = x;
+        this.y = y;
+        this.vx = vx;
+        this.vy = vy;
+        this.bulletType = bulletType;
+        this.damage = damage;
+        this.isPlayerBullet = isPlayerBullet;
+        this.active = true;
+        this.stateTime = 0f;
+        this.grazed = false; // Reset graze state for recycled pooled bullet
     }
 
     @Override
     public void update(float delta) {
-        // Bullet moves upwards linearly
-        this.y += speed * delta;
+        super.update(delta);
+        // Bullet movement using velocity components
+        this.x += vx * delta;
+        this.y += vy * delta;
     }
 
     @Override
     public void onCollision(Collidable other) {
-        if (other instanceof Enemy enemy) {
+        if (other instanceof Enemy enemy && isPlayerBullet) {
             System.out.println("Bullet hit " + enemy.getName() + " for " + damage + " DMG!");
-            boolean defeated = enemy.takeDamage(damage);
-            this.destroy(); // Bullet is destroyed on collision
+            enemy.takeDamage(damage);
+            this.destroy(); // Bullet is deactivated and returned to pool
         }
     }
 
     public BulletType getBulletType() { return bulletType; }
     public int getDamage() { return damage; }
+    public boolean isPlayerBullet() { return isPlayerBullet; }
+    public float getVx() { return vx; }
+    public float getVy() { return vy; }
+
+    public boolean hasBeenGrazed() { return grazed; }
+    public void setGrazed(boolean grazed) { this.grazed = grazed; }
 }
