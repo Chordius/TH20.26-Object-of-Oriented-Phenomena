@@ -18,7 +18,7 @@ public class Player extends GameObject {
     private long score;
 
     public Player(String name, int hp, int power, int spellCards) {
-        super(280, 40, 32, 32, 200f, Color.RED);
+        super(280, 40, 32, 48, 200f, Color.RED);
         this.name = name;
         this.hp = hp;
         this.power = power;
@@ -27,7 +27,7 @@ public class Player extends GameObject {
     }
 
     public Player(float x, float y, String name, int hp, int power, int spellCards) {
-        super(x, y, 32, 32, 200f, Color.RED);
+        super(x, y, 32, 48, 200f, Color.RED);
         this.name = name;
         this.hp = hp;
         this.power = power;
@@ -37,6 +37,8 @@ public class Player extends GameObject {
 
     @Override
     public void update(float delta) {
+        super.update(delta); // Advances stateTime for idle animations
+
         // Player movement handling (LibGDX input)
         if (Gdx.input != null) {
             if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {
@@ -57,7 +59,7 @@ public class Player extends GameObject {
     public Bullet shootBullet() {
         int damage = 10 + power;
         System.out.println(name + " shoots bullet dealing " + damage + " DMG!");
-        return new Bullet(x + width / 2 - 4, y + height, BulletType.AMULET, damage);
+        return EntityFactory.createPlayerBullet(x + width / 2 - 4, y + height, damage);
     }
 
     public void moveUp(float delta) { this.y += speed * delta; }
@@ -117,7 +119,7 @@ public class Player extends GameObject {
             System.out.println(name + " collected " + item.getItemType() + "!");
         }
 
-        item.destroy(); // Destroy item after collection so it gets safely removed by Iterator
+        item.destroy();
     }
 
     public void takeDamage(int damage) {

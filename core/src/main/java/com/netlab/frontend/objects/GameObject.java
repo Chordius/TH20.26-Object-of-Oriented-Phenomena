@@ -1,6 +1,9 @@
 package com.netlab.frontend.objects;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 
@@ -11,6 +14,9 @@ public abstract class GameObject implements Collidable {
     protected float height;
     protected float speed;
     protected Color color;
+    protected TextureRegion sprite;
+    protected Animation<TextureRegion> animation;
+    protected float stateTime = 0f;
     protected boolean active = true;
 
     public GameObject(float x, float y, float width, float height, float speed, Color color) {
@@ -23,9 +29,22 @@ public abstract class GameObject implements Collidable {
     }
 
     public void update(float delta) {
-        // Base update method
+        stateTime += delta;
     }
 
+    // Render with SpriteBatch (supports animated frames or static sprite)
+    public void render(SpriteBatch batch) {
+        if (batch != null && active) {
+            if (animation != null) {
+                TextureRegion currentFrame = animation.getKeyFrame(stateTime, true);
+                batch.draw(currentFrame, x, y, width, height);
+            } else if (sprite != null) {
+                batch.draw(sprite, x, y, width, height);
+            }
+        }
+    }
+
+    // Render fallback with ShapeRenderer (for geometric hitboxes)
     public void render(ShapeRenderer shapeRenderer) {
         if (shapeRenderer != null && color != null && active) {
             shapeRenderer.setColor(color);
@@ -40,7 +59,6 @@ public abstract class GameObject implements Collidable {
 
     @Override
     public Rectangle getGrazeHitbox() {
-        // Graze hitbox is slightly larger than core hitbox (+10px padding)
         return new Rectangle(x - 10, y - 10, width + 20, height + 20);
     }
 
@@ -85,5 +103,12 @@ public abstract class GameObject implements Collidable {
 
     public Color getColor() { return color; }
     public void setColor(Color color) { this.color = color; }
+
+    public TextureRegion getSprite() { return sprite; }
+    public void setSprite(TextureRegion sprite) { this.sprite = sprite; }
+
+    public Animation<TextureRegion> getAnimation() { return animation; }
+    public void setAnimation(Animation<TextureRegion> animation) { this.animation = animation; }
+
     public boolean isActive() { return active; }
 }

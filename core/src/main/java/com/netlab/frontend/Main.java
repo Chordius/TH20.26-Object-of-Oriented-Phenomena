@@ -3,8 +3,10 @@ package com.netlab.frontend;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.netlab.frontend.objects.AssetManager;
+import com.netlab.frontend.objects.EntityFactory;
 import com.netlab.frontend.objects.GameObject;
 import com.netlab.frontend.objects.Player;
 import com.netlab.frontend.objects.enemies.Boss;
@@ -17,7 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class Main extends ApplicationAdapter {
-    private ShapeRenderer shapeRenderer;
+    private SpriteBatch batch;
 
     private Player player;
     private Fairy fairy;
@@ -28,21 +30,24 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void create() {
-        shapeRenderer = new ShapeRenderer();
+        batch = new SpriteBatch();
         entities = new ArrayList<>();
 
-        // 1. Player: Red square (movable with W/A/S/D, shoots with Z)
-        player = new Player(280, 40, "Reimu Hakurei", 100, 15, 3);
-        
-        // 2. Fairy: Pink square (stationary)
-        fairy = new Fairy(150, 380, "Stage 1 Fairy", 20);
+        // 1. Dynamic Asset Registration (No switch statements inside AssetManager!)
+        AssetManager assets = AssetManager.getInstance();
+        assets.registerAnimationFromSheet("player_idle", "player.png", 32, 48, 0, 4, 0.25f);
+        assets.registerAnimationFromSheet("fairy_idle", "fairy.png", 32, 32, 1, 8, 0.125f);
+        assets.registerAnimationFromSheet("boss_idle", "cirno.png", 48, 64, 1, 4, 0.25f);
+        assets.registerRegionFromSheet("bullet_amulet", "bullets_small.png", 16, 16, 6, 0);
+        assets.registerRegionFromSheet("item_power", "items.png", 16, 16, 0, 0);
+        assets.registerRegionFromSheet("item_point", "items.png", 16, 16, 0, 2);
 
-        // 3. Boss: Blue square (stationary, larger size)
-        boss = new Boss(380, 400, "Cirno", 150);
-
-        // 4. Items: White squares (moving downwards linearly)
-        powerItem = new Item(200, 450, 16, 16, 80f, ItemType.POWER, 500L);
-        pointItem = new Item(320, 480, 12, 12, 120f, ItemType.POINT, 1000L);
+        // 2. Instantiate entities via Factory Pattern (EntityFactory)
+        player = EntityFactory.createPlayer(280, 40, "Reimu Hakurei", 100, 15, 3);
+        fairy = EntityFactory.createFairy(150, 380, "Stage 1 Fairy", 20);
+        boss = EntityFactory.createBoss(380, 400, "Cirno", 150);
+        powerItem = EntityFactory.createItem(200, 450, ItemType.POWER);
+        pointItem = EntityFactory.createItem(320, 480, ItemType.POINT);
 
         entities.add(player);
         entities.add(fairy);
@@ -60,7 +65,7 @@ public class Main extends ApplicationAdapter {
             entities.add(player.shootBullet());
         }
 
-        // 2. Generic update & safe removal of off-screen/destroyed entities using non-static instance method
+        // 2. Generic update & safe removal of off-screen/destroyed entities using updateAndClean<T>()
         updateAndClean(entities, delta, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         // 3. Collision detection between active entities
@@ -81,17 +86,17 @@ public class Main extends ApplicationAdapter {
         // 4. Clear screen
         ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
 
-        // 5. Render filled hitboxes with ShapeRenderer
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        // 5. Render active entity sprites/animations with SpriteBatch
+        batch.begin();
         for (GameObject entity : entities) {
             if (!entity.isDestroyed()) {
-                entity.render(shapeRenderer);
+                entity.render(batch);
             }
         }
-        shapeRenderer.end();
+        batch.end();
     }
 
-    // Non-static (Instance) Generic Method with Bounded Type Parameter <T extends GameObject>
+    // Generic Instance Method with Bounded Type Parameter <T extends GameObject>
     public <T extends GameObject> void updateAndClean(List<T> list, float delta, float screenWidth, float screenHeight) {
         Iterator<T> iterator = list.iterator();
         while (iterator.hasNext()) {
@@ -100,15 +105,16 @@ public class Main extends ApplicationAdapter {
 
             if (entity.isOffScreen(screenWidth, screenHeight) || entity.isDestroyed()) {
                 System.out.println("Removed via Generic Iterator: " + entity.getClass().getSimpleName());
-                iterator.remove(); // Safe removal using Iterator!
+                iterator.remove();
             }
         }
     }
 
     @Override
     public void dispose() {
-        if (shapeRenderer != null) {
-            shapeRenderer.dispose();
+        if (batch != null) {
+            batch.dispose();
         }
+        AssetManager.getInstance().dispose();
     }
 }
