@@ -1,7 +1,9 @@
-package com.netlab.frontend.objects;
+package com.netlab.frontend.systems;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.netlab.frontend.objects.bullets.BulletType;
+import com.netlab.frontend.objects.Player;
 import com.netlab.frontend.objects.bullets.Bullet;
 import com.netlab.frontend.objects.enemies.Boss;
 import com.netlab.frontend.objects.enemies.Fairy;

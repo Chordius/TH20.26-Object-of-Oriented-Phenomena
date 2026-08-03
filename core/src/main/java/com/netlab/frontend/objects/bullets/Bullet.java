@@ -1,7 +1,6 @@
 package com.netlab.frontend.objects.bullets;
 
 import com.badlogic.gdx.graphics.Color;
-import com.netlab.frontend.objects.BulletType;
 import com.netlab.frontend.objects.Collidable;
 import com.netlab.frontend.objects.GameObject;
 import com.netlab.frontend.objects.enemies.Enemy;

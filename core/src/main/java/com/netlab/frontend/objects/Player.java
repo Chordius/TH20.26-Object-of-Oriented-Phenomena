@@ -9,6 +9,7 @@ import com.netlab.frontend.objects.items.ItemType;
 import com.netlab.frontend.objects.enemies.Boss;
 import com.netlab.frontend.objects.enemies.Enemy;
 import com.netlab.frontend.objects.enemies.Fairy;
+import com.netlab.frontend.systems.EntityFactory;
 
 public class Player extends GameObject {
     private String name;

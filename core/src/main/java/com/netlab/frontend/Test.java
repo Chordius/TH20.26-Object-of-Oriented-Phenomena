@@ -1,6 +1,6 @@
 package com.netlab.frontend;
 
-import com.netlab.frontend.objects.BulletType;
+import com.netlab.frontend.objects.bullets.BulletType;
 import com.netlab.frontend.objects.GameObject;
 import com.netlab.frontend.objects.Player;
 import com.netlab.frontend.objects.bullets.Bullet;

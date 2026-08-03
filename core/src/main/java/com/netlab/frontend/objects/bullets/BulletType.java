@@ -1,4 +1,4 @@
-package com.netlab.frontend.objects;
+package com.netlab.frontend.objects.bullets;
 
 public enum BulletType {
     DANMAKU,

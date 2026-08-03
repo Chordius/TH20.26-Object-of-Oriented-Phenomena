@@ -1,4 +1,4 @@
-package com.netlab.frontend.objects;
+package com.netlab.frontend.systems;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -55,7 +55,7 @@ public class AssetManager {
     public void registerAnimationFromSheet(String key, String filename, int tileWidth, int tileHeight, int row, int numFrames, float frameDuration) {
         Texture tex = loadTexture(filename);
         TextureRegion[][] grid = TextureRegion.split(tex, tileWidth, tileHeight);
-        
+
         TextureRegion[] frames = new TextureRegion[numFrames];
         for (int i = 0; i < numFrames; i++) {
             frames[i] = grid[row][i];
@@ -63,7 +63,7 @@ public class AssetManager {
 
         Animation<TextureRegion> anim = new Animation<>(frameDuration, frames);
         anim.setPlayMode(Animation.PlayMode.LOOP);
-        
+
         animationMap.put(key, anim);
         textureRegionMap.put(key, frames[0]); // Default first frame
     }
