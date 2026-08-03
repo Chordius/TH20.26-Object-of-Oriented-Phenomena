@@ -1,33 +1,62 @@
-# test
+# Touhou OOP Practicum - Module 7: Object Pool & Mediator Pattern
 
-A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
+## 🎯 Purpose & Design Framework (Tujuan & Modul Design)
 
-This project was generated with a template including simple application launchers and an `ApplicationAdapter` extension that draws libGDX logo.
+Module 7 introduces students to high-performance memory management and decoupled collision interaction in game development through two core Object-Oriented Design Patterns:
 
-## Platforms
+1. **Object Pool Pattern**: Eliminates garbage collection stutter caused by high-frequency bullet creation (`new Bullet()`) by recycling inactive bullet instances from a `Queue` pool.
+2. **Mediator Pattern**: Centralizes collision detection and object interaction rules into a single Mediator class (`CollisionReferee`), decoupling entities (`Player`, `Enemy`, `Item`, `Bullet`) from each other.
+3. **Touhou Core vs. Graze Mechanics**: Introduces dual-box collision checking (**Core Hitbox** for damage vs. **Graze Hitbox** for score bonuses).
 
-- `core`: Main module with the application logic shared by all platforms.
-- `lwjgl3`: Primary desktop platform using LWJGL3; was called 'desktop' in older docs.
+---
 
-## Gradle
+## 👨‍💻 Student Implementation Expectations (Tugas Praktikan)
 
-This project uses [Gradle](https://gradle.org/) to manage dependencies.
-The Gradle wrapper was included, so you can run Gradle tasks using `gradlew.bat` or `./gradlew` commands.
-Useful Gradle tasks and flags:
+Practikans (students) are expected to implement the following core components in this module:
 
-- `--continue`: when using this flag, errors will not stop the tasks from running.
-- `--daemon`: thanks to this flag, Gradle daemon will be used to run chosen tasks.
-- `--offline`: when using this flag, cached dependency archives will be used.
-- `--refresh-dependencies`: this flag forces validation of all dependencies. Useful for snapshot versions.
-- `build`: builds sources and archives of every project.
-- `cleanEclipse`: removes Eclipse project data.
-- `cleanIdea`: removes IntelliJ project data.
-- `clean`: removes `build` folders, which store compiled classes and built archives.
-- `eclipse`: generates Eclipse project data.
-- `idea`: generates IntelliJ project data.
-- `lwjgl3:jar`: builds application's runnable jar, which can be found at `lwjgl3/build/libs`.
-- `lwjgl3:run`: starts the application.
-- `test`: runs unit tests (if any).
+### 1. Object Pool in `BulletManager.java` (`com.netlab.frontend.systems`)
+- Manage `playerBulletPool` & `enemyBulletPool` queues (`Queue<Bullet>`).
+- Implement `spawnPlayerBullet(x, y, vx, vy, damage)`:
+  - Poll an inactive bullet from `playerBulletPool` if available (`bullet.init(...)`).
+  - Otherwise, instantiate a new bullet via `EntityFactory.createPlayerBullet(...)`.
+- Implement `update(delta, screenWidth, screenHeight)`:
+  - Update active bullet movement using velocity components (`vx`, `vy`).
+  - Use an `Iterator` to recycle offscreen or destroyed bullets back into the pool queue (`iterator.remove()` and `pool.offer(bullet)`).
 
-Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
-For example, `core:clean` removes `build` folder only from the `core` project.
+### 2. Player Shooting Integration in `Player.java`
+- Update `player.shootBullet(bulletManager)` to directly invoke the Object Pool:
+  ```java
+  public void shootBullet(BulletManager bulletManager) {
+      bulletManager.spawnPlayerBullet(x + width / 2 - 8, y + height, 0, 400f, 10 + power);
+  }
+  ```
+
+### 3. Collision Mediator in `CollisionReferee.java` (`com.netlab.frontend.systems`)
+- Implement `resolveCollisions(player, entities, bulletManager)`:
+  - **Player Bullets vs. Enemies**: Core hitbox overlap $\rightarrow$ deal damage, update player score, mark bullet destroyed for pool recycling.
+  - **Enemy Bullets vs. Player**:
+    - **Core Hitbox Overlap**: Deal player damage (`player.takeDamage(...)`), mark bullet destroyed for pool recycling.
+    - **Graze Hitbox Overlap** (without core hit): Mark `bullet.setGrazed(true)` and award **`+50 Graze score`** bonus.
+  - **Player vs. Items**: Collect item on overlap (`player.collectItem(item)`).
+
+### 4. Game Loop Integration in `Main.java`
+- Instantiate `BulletManager` and `CollisionReferee`.
+- Call `bulletManager.update(...)`, `collisionReferee.resolveCollisions(...)`, and `bulletManager.render(batch)` inside `render()`.
+
+---
+
+## 🛠️ Pre-Made Framework Components (Framework Bawaan untuk Asisten Laboratory)
+
+To keep the practicum focused on Object Pooling and Mediator logic without overwhelming students:
+
+* **`SpreadShot.java` (Strategy Pattern)**: A pre-made plug-and-play shooting strategy assigned to **Boss Cirno** (`new SpreadShot(200f, 3, 30f)`). Cirno automatically fires 3-way fan bullet barrages on a 1.5-second timer. Students are **not** expected to write `ShootingPattern` or `SpreadShot` in this module.
+
+---
+
+## 🧪 Verification & Testing Commands
+
+To verify compilation and run the full practicum test suite (Modules 1 through 7):
+
+```bash
+./gradlew core:runTest
+```
