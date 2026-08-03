@@ -1,9 +1,10 @@
-package com.netlab.frontend;
+package com.netlab.frontend.objects;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
 
-public abstract class GameObject {
+public abstract class GameObject implements Collidable {
     protected float x;
     protected float y;
     protected float width;
@@ -21,7 +22,7 @@ public abstract class GameObject {
     }
 
     public void update(float delta) {
-        // Base update method (can be overridden by moving objects)
+        // Base update method
     }
 
     public void render(ShapeRenderer shapeRenderer) {
@@ -29,6 +30,22 @@ public abstract class GameObject {
             shapeRenderer.setColor(color);
             shapeRenderer.rect(x, y, width, height);
         }
+    }
+
+    @Override
+    public Rectangle getCoreHitbox() {
+        return new Rectangle(x, y, width, height);
+    }
+
+    @Override
+    public Rectangle getGrazeHitbox() {
+        // Graze hitbox is slightly larger than core hitbox (+10px padding)
+        return new Rectangle(x - 10, y - 10, width + 20, height + 20);
+    }
+
+    @Override
+    public void onCollision(Collidable other) {
+        // Base collision handler (can be overridden by subclasses)
     }
 
     // Encapsulation: Getters and Setters

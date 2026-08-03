@@ -1,4 +1,4 @@
-package com.netlab.frontend;
+package com.netlab.frontend.objects.enemies;
 
 import com.badlogic.gdx.graphics.Color;
 

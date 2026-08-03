@@ -1,11 +1,13 @@
-package com.netlab.frontend;
+package com.netlab.frontend.objects.enemies;
 
 import com.badlogic.gdx.graphics.Color;
+import com.netlab.frontend.objects.GameObject;
+import com.netlab.frontend.objects.Player;
 
 public class Enemy extends GameObject {
-    String name;
-    int hp;
-    int maxHp;
+    protected String name;
+    protected int hp;
+    protected int maxHp;
     protected long scoreValue;
 
     public Enemy(String name, int hp) {
