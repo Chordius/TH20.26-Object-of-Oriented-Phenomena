@@ -9,7 +9,6 @@ import com.netlab.frontend.objects.enemies.Enemy;
 import com.netlab.frontend.objects.enemies.Fairy;
 import com.netlab.frontend.objects.items.Item;
 import com.netlab.frontend.objects.items.ItemType;
-import com.netlab.frontend.objects.patterns.LinearShot;
 import com.netlab.frontend.systems.BulletManager;
 import com.netlab.frontend.systems.CollisionReferee;
 
@@ -179,25 +178,24 @@ public class Test {
 
 
         // ==========================================
-        // MODULE 7: OBJECT POOL, STRATEGY PATTERN & MEDIATOR PATTERN
+        // MODULE 7: OBJECT POOL & MEDIATOR PATTERN
         // ==========================================
-        System.out.println("\n\n=== TOUHOU OOP PRACTICUM - MODULE 7: OBJECT POOL, STRATEGY & MEDIATOR ===");
+        System.out.println("\n\n=== TOUHOU OOP PRACTICUM - MODULE 7: OBJECT POOL & MEDIATOR ===");
 
         BulletManager bulletManager = new BulletManager();
         CollisionReferee referee = new CollisionReferee();
 
         Player player7 = new Player(200, 50, "Reimu Hakurei", 100, 15, 3);
-        player7.setShootingPattern(new LinearShot(400f)); // Strategy Pattern
 
         Fairy enemyFairy = new Fairy(200, 200, "Stage 1 Fairy", 20); // HP 20
         List<GameObject> m7Entities = new ArrayList<>();
         m7Entities.add(enemyFairy);
 
-        System.out.println("\n--- Testing Object Pool & Strategy Pattern ---");
+        System.out.println("\n--- Testing Object Pool ---");
         System.out.println("Initial Player Pool Size: " + bulletManager.getPlayerPoolSize());
         System.out.println("Initial Active Player Bullets: " + bulletManager.getActivePlayerBullets().size());
 
-        // Strategy Pattern Shooting
+        // Direct Object Pool Shooting
         player7.shootBullet(bulletManager);
         System.out.println("Active Player Bullets after 1st shoot: " + bulletManager.getActivePlayerBullets().size());
 

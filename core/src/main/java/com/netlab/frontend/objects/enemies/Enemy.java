@@ -3,16 +3,12 @@ package com.netlab.frontend.objects.enemies;
 import com.badlogic.gdx.graphics.Color;
 import com.netlab.frontend.objects.GameObject;
 import com.netlab.frontend.objects.Player;
-import com.netlab.frontend.objects.patterns.LinearShot;
-import com.netlab.frontend.objects.patterns.ShootingPattern;
-import com.netlab.frontend.systems.BulletManager;
 
 public class Enemy extends GameObject {
     protected String name;
     protected int hp;
     protected int maxHp;
     protected long scoreValue;
-    protected ShootingPattern shootingPattern;
 
     public Enemy(String name, int hp) {
         super(200, 380, 24, 24, 0, Color.PINK);
@@ -20,7 +16,6 @@ public class Enemy extends GameObject {
         this.hp = hp;
         this.maxHp = hp;
         this.scoreValue = 100;
-        this.shootingPattern = new LinearShot(200f); // Default Strategy Pattern (Fires downward)
     }
 
     public Enemy(float x, float y, float width, float height, Color color, String name, int hp, long scoreValue) {
@@ -29,13 +24,6 @@ public class Enemy extends GameObject {
         this.hp = hp;
         this.maxHp = hp;
         this.scoreValue = scoreValue;
-        this.shootingPattern = new LinearShot(200f); // Default Strategy Pattern (Fires downward)
-    }
-
-    public void shootBullet(BulletManager bulletManager) {
-        if (shootingPattern != null && !isDestroyed()) {
-            shootingPattern.execute(x + width / 2 - 8, y, bulletManager, false);
-        }
     }
 
     public boolean takeDamage(int damage) {
@@ -61,10 +49,6 @@ public class Enemy extends GameObject {
     public boolean isAlive() {
         return this.hp > 0;
     }
-
-    // Strategy Pattern getter & setter
-    public ShootingPattern getShootingPattern() { return shootingPattern; }
-    public void setShootingPattern(ShootingPattern shootingPattern) { this.shootingPattern = shootingPattern; }
 
     // Encapsulation getters and setters
     public String getName() { return name; }

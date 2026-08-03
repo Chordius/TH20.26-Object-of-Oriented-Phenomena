@@ -69,16 +69,15 @@ public class Main extends ApplicationAdapter {
     public void render() {
         float delta = Gdx.graphics.getDeltaTime();
 
-        // 1. Check Player Bullet shooting input (Key Z -> BulletManager Pooling & Strategy Pattern)
+        // 1. Check Player Bullet shooting input (Key Z -> BulletManager Object Pool)
         if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
             player.shootBullet(bulletManager);
         }
 
-        // 2. Periodic Enemy Bullet Shooting (Every 1.5s via BulletManager Pooling & Strategy Pattern)
+        // 2. Periodic Boss Bullet Shooting (Every 1.5s via Pre-made Boss SpreadShot Strategy)
         enemyShootTimer += delta;
         if (enemyShootTimer >= 1.5f) {
             boss.shootBullet(bulletManager);
-            fairy.shootBullet(bulletManager);
             enemyShootTimer = 0f;
         }
 
