@@ -47,4 +47,11 @@ public class EntityFactory {
         bullet.setSprite(sprite);
         return bullet;
     }
+
+    public static Bullet createEnemyBullet(float x, float y, int damage) {
+        TextureRegion sprite = AssetManager.getInstance().getTextureRegion("bullet_danmaku");
+        Bullet bullet = new Bullet(x, y, 0f, BulletType.DANMAKU, damage);
+        bullet.setSprite(sprite);
+        return bullet;
+    }
 }

@@ -39,6 +39,7 @@ public class Main extends ApplicationAdapter {
         assets.registerAnimationFromSheet("fairy_idle", "fairy.png", 32, 32, 1, 8, 0.125f);
         assets.registerAnimationFromSheet("boss_idle", "cirno.png", 48, 64, 1, 4, 0.25f);
         assets.registerRegionFromSheet("bullet_amulet", "bullets_small.png", 16, 16, 6, 0);
+        assets.registerRegionFromSheet("bullet_danmaku", "bullets_small.png", 16, 16, 2, 0);
         assets.registerRegionFromSheet("item_power", "items.png", 16, 16, 0, 0);
         assets.registerRegionFromSheet("item_point", "items.png", 16, 16, 0, 2);
 
