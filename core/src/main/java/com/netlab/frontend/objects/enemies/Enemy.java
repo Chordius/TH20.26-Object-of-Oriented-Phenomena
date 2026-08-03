@@ -35,6 +35,7 @@ public class Enemy extends GameObject {
         System.out.println(name + " took " + damage + " damage! HP: " + this.hp + "/" + this.maxHp);
         if (wasAlive && this.hp == 0) {
             System.out.println(name + " was defeated!");
+            this.destroy(); // Mark enemy as destroyed/inactive so Iterator removes it!
             return true;
         }
         return false;

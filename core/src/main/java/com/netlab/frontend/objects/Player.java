@@ -3,6 +3,7 @@ package com.netlab.frontend.objects;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.netlab.frontend.objects.bullets.Bullet;
 import com.netlab.frontend.objects.items.Item;
 import com.netlab.frontend.objects.items.ItemType;
 import com.netlab.frontend.objects.enemies.Boss;
@@ -53,6 +54,12 @@ public class Player extends GameObject {
         }
     }
 
+    public Bullet shootBullet() {
+        int damage = 10 + power;
+        System.out.println(name + " shoots bullet dealing " + damage + " DMG!");
+        return new Bullet(x + width / 2 - 4, y + height, BulletType.AMULET, damage);
+    }
+
     public void moveUp(float delta) { this.y += speed * delta; }
     public void moveDown(float delta) { this.y -= speed * delta; }
     public void moveLeft(float delta) { this.x -= speed * delta; }
@@ -64,9 +71,9 @@ public class Player extends GameObject {
             System.out.println("Player touches fairy");
         } else if (other instanceof Boss) {
             System.out.println("Player touches boss");
-        } else if (other instanceof Item) {
+        } else if (other instanceof Item item) {
             System.out.println("Player touches items");
-            collectItem((Item) other);
+            collectItem(item);
         }
     }
 
@@ -80,6 +87,8 @@ public class Player extends GameObject {
     }
 
     public void collectItem(Item item) {
+        if (item.isDestroyed()) return;
+
         ItemType type = item.getItemTypeEnum();
         if (type != null) {
             switch (type) {
@@ -107,6 +116,8 @@ public class Player extends GameObject {
             addScore(item.getScoreValue());
             System.out.println(name + " collected " + item.getItemType() + "!");
         }
+
+        item.destroy(); // Destroy item after collection so it gets safely removed by Iterator
     }
 
     public void takeDamage(int damage) {
