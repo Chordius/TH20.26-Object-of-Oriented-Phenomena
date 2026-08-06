@@ -49,24 +49,37 @@ public class Main extends ApplicationAdapter {
 
         // 1. Dynamic Asset Registration (AssetManager - Singleton + Flyweight)
         AssetManager assets = AssetManager.getInstance();
-        
-        // Reimu Idle Animation (8 frames, looping)
+
+        // Reimu Animations (32x48 per tile, 8 columns)
+        // Row 0: Idle stance (8 frames, looping)
         assets.registerAnimationFromSheet("player_idle", "player.png", 32, 48, 0, 0, 8, 0.125f, Animation.PlayMode.LOOP);
 
-        // Left Banking: First 4 transition frames ONCE (startCol 0), then last 4 bank frames LOOP (startCol 4)
-        assets.registerAnimationFromSheet("player_left_start", "player.png", 32, 48, 1, 0, 4, 0.08f, Animation.PlayMode.NORMAL);
+        // Row 1: Left Movement (Cols 0..3 ONCE, then Cols 4..7 LOOP)
+        assets.registerAnimationFromSheet("player_left_start", "player.png", 32, 48, 1, 0, 4, 0.12f, Animation.PlayMode.NORMAL);
         assets.registerAnimationFromSheet("player_left_loop",  "player.png", 32, 48, 1, 4, 4, 0.12f, Animation.PlayMode.LOOP);
 
-        // Right Banking (Flipped): First 4 transition frames ONCE, then last 4 bank frames LOOP
-        assets.registerFlippedAnimationFromSheet("player_right_start", "player.png", 32, 48, 1, 0, 4, 0.08f, Animation.PlayMode.NORMAL, true, false);
-        assets.registerFlippedAnimationFromSheet("player_right_loop",  "player.png", 32, 48, 1, 4, 4, 0.12f, Animation.PlayMode.LOOP, true, false);
+        // Row 2: Right Movement (Cols 0..3 ONCE, then Cols 4..7 LOOP)
+        assets.registerAnimationFromSheet("player_right_start", "player.png", 32, 48, 2, 0, 4, 0.12f, Animation.PlayMode.NORMAL);
+        assets.registerAnimationFromSheet("player_right_loop",  "player.png", 32, 48, 2, 4, 4, 0.12f, Animation.PlayMode.LOOP);
 
+        // Boss Cirno Animations (64x64 per tile, 4 columns)
+        // Row 0: Idle stance (4 frames, looping)
+        assets.registerAnimationFromSheet("boss_idle", "cirno.png", 64, 64, 0, 0, 4, 0.2f, Animation.PlayMode.LOOP);
+
+        // Row 1: Left Movement (Cols 0..1 ONCE, Cols 2..3 LOOP)
+        assets.registerAnimationFromSheet("boss_left_start", "cirno.png", 64, 64, 1, 0, 2, 0.12f, Animation.PlayMode.NORMAL);
+        assets.registerAnimationFromSheet("boss_left_loop",  "cirno.png", 64, 64, 1, 2, 2, 0.2f,  Animation.PlayMode.LOOP);
+
+        // Row 2: Right Movement (Cols 0..1 ONCE, Cols 2..3 LOOP)
+        assets.registerAnimationFromSheet("boss_right_start", "cirno.png", 64, 64, 2, 0, 2, 0.12f, Animation.PlayMode.NORMAL);
+        assets.registerAnimationFromSheet("boss_right_loop",  "cirno.png", 64, 64, 2, 2, 2, 0.2f,  Animation.PlayMode.LOOP);
+
+        // Stage 1 Fairy & Bullets
         assets.registerAnimationFromSheet("fairy_idle", "fairy.png", 32, 32, 1, 8, 0.125f);
-        assets.registerAnimationFromSheet("boss_idle", "cirno.png", 64, 64, 0, 4, 0.2f);
         assets.registerRegionFromSheet("bullet_amulet", "bullets_small.png", 16, 16, 6, 0);
         assets.registerRegionFromSheet("bullet_danmaku", "bullets_small.png", 16, 16, 2, 0);
 
-        // Correct items.png column coordinates (16x16 per cell):
+        // Items (items.png 16x16 per cell):
         // Col 0: Small Power (P), Col 1: Point Item (点), Col 3: Bomb Item (B), Col 5: 1UP Item (1up)
         assets.registerRegionFromSheet("item_power", "items.png", 16, 16, 0, 0);
         assets.registerRegionFromSheet("item_point", "items.png", 16, 16, 0, 1);

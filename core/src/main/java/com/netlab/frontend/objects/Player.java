@@ -33,7 +33,6 @@ public class Player extends GameObject {
     private float shootCooldown = 0.1f; // Continuous fire rate: 10 shots per second when holding Z
 
     private int currentDir = 0; // -1: Left, 0: Idle, 1: Right
-    private float animStateTime = 0f;
 
     // Observer Pattern Subject
     private List<GameObserver> observers = new ArrayList<>();
@@ -108,44 +107,43 @@ public class Player extends GameObject {
     public void update(float delta) {
         super.update(delta); // Advances stateTime for idle animations
         shootTimer += delta;  // Accumulates continuous fire timer
-        animStateTime += delta; // Tracks time spent in current animation state
 
-        // Transition from 3-frame intro tilt to 4-frame continuous loop
+        // Transition from 4-frame intro tilt (start) to 4-frame continuous loop (loop)
         AssetManager assets = AssetManager.getInstance();
         if (currentDir < 0) {
             Animation<TextureRegion> startAnim = assets.getAnimation("player_left_start");
             Animation<TextureRegion> loopAnim = assets.getAnimation("player_left_loop");
-            if (animation == startAnim && startAnim.isAnimationFinished(animStateTime)) {
+            if (animation == startAnim && startAnim.isAnimationFinished(stateTime)) {
                 setAnimation(loopAnim);
             }
         } else if (currentDir > 0) {
             Animation<TextureRegion> startAnim = assets.getAnimation("player_right_start");
             Animation<TextureRegion> loopAnim = assets.getAnimation("player_right_loop");
-            if (animation == startAnim && startAnim.isAnimationFinished(animStateTime)) {
+            if (animation == startAnim && startAnim.isAnimationFinished(stateTime)) {
                 setAnimation(loopAnim);
             }
         }
     }
 
     // Updates character banking/tilt animation state based on horizontal movement direction (dx)
+    // Row 1: Left (cols 0..3 start, cols 4..7 loop)
+    // Row 2: Right (cols 0..3 start, cols 4..7 loop)
+    // Row 0: Idle (cols 0..7 loop)
     public void updateAnimationState(float dx) {
         AssetManager assets = AssetManager.getInstance();
-        if (dx < 0) { // Moving Left
+        if (dx < 0) { // Moving Left (Row 1)
             if (currentDir != -1) {
                 currentDir = -1;
-                animStateTime = 0f;
                 setAnimation(assets.getAnimation("player_left_start"));
             }
-        } else if (dx > 0) { // Moving Right
+        } else if (dx > 0) { // Moving Right (Row 2)
             if (currentDir != 1) {
                 currentDir = 1;
-                animStateTime = 0f;
                 setAnimation(assets.getAnimation("player_right_start"));
             }
-        } else { // Idle / Stationary
+        } else { // Idle / Stationary (Row 0)
             if (currentDir != 0) {
                 currentDir = 0;
-                animStateTime = 0f;
                 setAnimation(assets.getAnimation("player_idle"));
             }
         }
