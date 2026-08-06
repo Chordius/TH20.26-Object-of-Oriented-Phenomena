@@ -104,11 +104,7 @@ public class Main extends ApplicationAdapter {
         // 6. Clear screen
         ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
 
-        // 7. Render UI Frame Lines & Focus Mode Core Hurtbox Indicator
-        gameHUD.renderFrame();
-        player.renderFocusIndicator(gameHUD.getShapeRenderer());
-
-        // 8. Render active entity sprites, pooled bullets, and Observer UI HUD with SpriteBatch
+        // 7. Render active entity sprites, pooled bullets, and Observer UI HUD with SpriteBatch
         batch.begin();
         for (GameObject entity : entities) {
             if (!entity.isDestroyed()) {
@@ -118,6 +114,10 @@ public class Main extends ApplicationAdapter {
         bulletManager.render(batch);
         gameHUD.render(batch);
         batch.end();
+
+        // 8. Render UI Frame Lines & Focus Mode Core Hurtbox Indicator (Drawn ON TOP of sprites!)
+        gameHUD.renderFrame();
+        player.renderFocusIndicator(gameHUD.getShapeRenderer());
     }
 
     // Generic Instance Method with Bounded Type Parameter <T extends GameObject>

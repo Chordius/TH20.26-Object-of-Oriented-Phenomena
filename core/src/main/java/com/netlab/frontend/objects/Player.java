@@ -152,7 +152,15 @@ public class Player extends GameObject {
 
     @Override
     public void render(SpriteBatch batch) {
-        super.render(batch);
+        if (batch != null && active) {
+            if (focused) {
+                batch.setColor(1f, 1f, 1f, 0.5f); // 50% opacity in Focus Mode
+            }
+            super.render(batch);
+            if (focused) {
+                batch.setColor(1f, 1f, 1f, 1.0f); // Reset back to 100% opacity
+            }
+        }
     }
 
     // Renders visual core hurtbox indicator dot when Focus Mode (Shift) is active
