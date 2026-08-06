@@ -2,9 +2,9 @@ package com.netlab.frontend;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.netlab.frontend.commands.InputHandler;
 import com.netlab.frontend.objects.GameObject;
 import com.netlab.frontend.objects.Player;
 import com.netlab.frontend.objects.enemies.Boss;
@@ -15,6 +15,7 @@ import com.netlab.frontend.systems.AssetManager;
 import com.netlab.frontend.systems.BulletManager;
 import com.netlab.frontend.systems.CollisionReferee;
 import com.netlab.frontend.systems.EntityFactory;
+import com.netlab.frontend.ui.GameHUD;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -32,6 +33,8 @@ public class Main extends ApplicationAdapter {
 
     private BulletManager bulletManager;
     private CollisionReferee collisionReferee;
+    private InputHandler inputHandler;
+    private GameHUD gameHUD;
     private float enemyShootTimer = 0f;
 
     @Override
@@ -40,6 +43,8 @@ public class Main extends ApplicationAdapter {
         entities = new ArrayList<>();
         bulletManager = new BulletManager();
         collisionReferee = new CollisionReferee();
+        inputHandler = new InputHandler();
+        gameHUD = new GameHUD();
 
         // 1. Dynamic Asset Registration (AssetManager - Singleton + Flyweight)
         AssetManager assets = AssetManager.getInstance();
@@ -52,11 +57,14 @@ public class Main extends ApplicationAdapter {
         assets.registerRegionFromSheet("item_point", "items.png", 16, 16, 0, 2);
 
         // 2. Instantiate entities via Factory Pattern (EntityFactory)
-        player = EntityFactory.createPlayer(280, 40, "Reimu Hakurei", 100, 15, 3);
+        player = EntityFactory.createPlayer(200, 50, "Reimu Hakurei", 100, 15, 3);
         fairy = EntityFactory.createFairy(150, 380, "Stage 1 Fairy", 20);
-        boss = EntityFactory.createBoss(380, 400, "Cirno", 150);
-        powerItem = EntityFactory.createItem(200, 450, ItemType.POWER);
-        pointItem = EntityFactory.createItem(320, 480, ItemType.POINT);
+        boss = EntityFactory.createBoss(250, 400, "Cirno", 150);
+        powerItem = EntityFactory.createItem(180, 450, ItemType.POWER);
+        pointItem = EntityFactory.createItem(220, 480, ItemType.POINT);
+
+        // 3. Register GameHUD as Observer to Player (Observer Pattern)
+        player.registerObserver(gameHUD);
 
         entities.add(player);
         entities.add(fairy);
@@ -69,10 +77,8 @@ public class Main extends ApplicationAdapter {
     public void render() {
         float delta = Gdx.graphics.getDeltaTime();
 
-        // 1. Check Player Bullet shooting input (Key Z -> BulletManager Object Pool)
-        if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
-            player.shootBullet(bulletManager);
-        }
+        // 1. Process Input via Command Pattern (InputHandler)
+        inputHandler.handleInput(player, bulletManager, delta);
 
         // 2. Periodic Boss Bullet Shooting (Every 1.5s via Pre-made Boss SpreadShot Strategy)
         enemyShootTimer += delta;
@@ -82,10 +88,10 @@ public class Main extends ApplicationAdapter {
         }
 
         // 3. Generic update & safe removal of standard entities
-        updateAndClean(entities, delta, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        updateAndClean(entities, delta, 416, 560);
 
         // 4. Object Pool Update (BulletManager)
-        bulletManager.update(delta, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        bulletManager.update(delta, 416, 560);
 
         // 5. Mediator Pattern Collision Resolution (CollisionReferee - Core vs Graze detection)
         collisionReferee.resolveCollisions(player, entities, bulletManager);
@@ -93,7 +99,10 @@ public class Main extends ApplicationAdapter {
         // 6. Clear screen
         ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
 
-        // 7. Render active entity sprites and pooled bullets with SpriteBatch
+        // 7. Render UI Frame Lines
+        gameHUD.renderFrame();
+
+        // 8. Render active entity sprites, pooled bullets, and Observer UI HUD with SpriteBatch
         batch.begin();
         for (GameObject entity : entities) {
             if (!entity.isDestroyed()) {
@@ -101,6 +110,7 @@ public class Main extends ApplicationAdapter {
             }
         }
         bulletManager.render(batch);
+        gameHUD.render(batch);
         batch.end();
     }
 
@@ -122,6 +132,9 @@ public class Main extends ApplicationAdapter {
     public void dispose() {
         if (batch != null) {
             batch.dispose();
+        }
+        if (gameHUD != null) {
+            gameHUD.dispose();
         }
         AssetManager.getInstance().dispose();
     }

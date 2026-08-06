@@ -1,5 +1,11 @@
 package com.netlab.frontend;
 
+import com.netlab.frontend.commands.BombCommand;
+import com.netlab.frontend.commands.Command;
+import com.netlab.frontend.commands.FocusCommand;
+import com.netlab.frontend.commands.MoveCommand;
+import com.netlab.frontend.commands.ShootCommand;
+import com.netlab.frontend.observers.GameObserver;
 import com.netlab.frontend.objects.GameObject;
 import com.netlab.frontend.objects.Player;
 import com.netlab.frontend.objects.bullets.Bullet;
@@ -11,6 +17,7 @@ import com.netlab.frontend.objects.items.Item;
 import com.netlab.frontend.objects.items.ItemType;
 import com.netlab.frontend.systems.BulletManager;
 import com.netlab.frontend.systems.CollisionReferee;
+import com.netlab.frontend.ui.GameHUD;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -225,6 +232,57 @@ public class Test {
         System.out.println("Graze score added (+50 pts): " + (player7.getScore() - scoreBeforeGraze == 50));
 
         System.out.println("\n=== Module 7 Test Completed Successfully ===");
+
+
+        // ==========================================
+        // MODULE 8: COMMAND PATTERN & OBSERVER PATTERN
+        // ==========================================
+        System.out.println("\n\n=== TOUHOU OOP PRACTICUM - MODULE 8: COMMAND & OBSERVER PATTERNS ===");
+
+        Player player8 = new Player(200, 50, "Reimu Hakurei", 100, 15, 3);
+        BulletManager bManager8 = new BulletManager();
+        GameHUD hud = new GameHUD();
+
+        System.out.println("\n--- Testing Observer Pattern Registration ---");
+        player8.registerObserver(hud);
+        System.out.println("HUD Received Initial Score: " + hud.getScore());
+        System.out.println("HUD Received Initial HP:    " + hud.getHp());
+        System.out.println("HUD Received Initial Bombs: " + hud.getSpellCards());
+
+        System.out.println("\n--- Testing Command Pattern Execution ---");
+
+        // 1. Move Command
+        Command moveUp = new MoveCommand(0, 0.5f);
+        moveUp.execute(player8, bManager8);
+        System.out.println("Player position after MoveCommand: (" + player8.getX() + ", " + player8.getY() + ")");
+
+        // 2. Focus Command
+        Command focusOn = new FocusCommand(true);
+        focusOn.execute(player8, bManager8);
+        System.out.println("Player Focus Mode Enabled: " + player8.isFocused());
+
+        // 3. Shoot Command
+        Command shoot = new ShootCommand();
+        shoot.execute(player8, bManager8);
+        System.out.println("Active Player Bullets after ShootCommand: " + bManager8.getActivePlayerBullets().size());
+
+        // 4. Bomb / Spell Card Command (Screen Clearing)
+        bManager8.spawnEnemyBullet(200, 300, 0, -100, 15);
+        bManager8.spawnEnemyBullet(250, 350, 0, -100, 15);
+        System.out.println("Active Enemy Bullets before Bomb: " + bManager8.getActiveEnemyBullets().size());
+
+        Command bomb = new BombCommand();
+        bomb.execute(player8, bManager8);
+
+        System.out.println("Active Enemy Bullets after BombCommand: " + bManager8.getActiveEnemyBullets().size());
+        System.out.println("HUD Received Updated Bombs: " + hud.getSpellCards());
+
+        System.out.println("\n--- Testing Observer Notification on Item Collection ---");
+        Item pItem = new Item(200, 50, ItemType.POWER);
+        player8.collectItem(pItem);
+        System.out.println("HUD Received Updated Score: " + hud.getScore());
+
+        System.out.println("\n=== Module 8 Test Completed Successfully ===");
     }
 
     // Non-static (Instance) Generic Method with Bounded Type Parameter <T extends GameObject>

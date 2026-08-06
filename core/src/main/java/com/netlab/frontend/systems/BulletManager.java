@@ -89,6 +89,18 @@ public class BulletManager {
         }
     }
 
+    // Bomb / Spell Card execution: Clear all active enemy bullets on screen!
+    public void clearEnemyBullets() {
+        Iterator<Bullet> eIter = activeEnemyBullets.iterator();
+        while (eIter.hasNext()) {
+            Bullet bullet = eIter.next();
+            bullet.destroy();
+            eIter.remove();
+            enemyBulletPool.offer(bullet); // Recycles back to pool!
+        }
+        System.out.println("[BulletManager] All active enemy bullets cleared and returned to pool!");
+    }
+
     public void freePlayerBullet(Bullet bullet) {
         if (activePlayerBullets.remove(bullet)) {
             bullet.destroy();
