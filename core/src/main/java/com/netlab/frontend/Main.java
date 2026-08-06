@@ -99,8 +99,9 @@ public class Main extends ApplicationAdapter {
         // 6. Clear screen
         ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
 
-        // 7. Render UI Frame Lines
+        // 7. Render UI Frame Lines & Focus Mode Core Hurtbox Indicator
         gameHUD.renderFrame();
+        player.renderFocusIndicator(gameHUD.getShapeRenderer());
 
         // 8. Render active entity sprites, pooled bullets, and Observer UI HUD with SpriteBatch
         batch.begin();

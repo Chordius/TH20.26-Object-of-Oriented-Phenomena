@@ -5,4 +5,5 @@ public interface GameObserver {
     void onHpChanged(int currentHp);
     void onSpellCardsChanged(int currentSpellCards);
     void onPowerChanged(int currentPower);
+    void onGrazeChanged(int currentGraze);
 }

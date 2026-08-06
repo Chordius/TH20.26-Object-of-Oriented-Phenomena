@@ -230,6 +230,7 @@ public class Test {
         long scoreBeforeGraze = player7.getScore();
         referee.resolveCollisions(player7, m7Entities, bulletManager);
         System.out.println("Graze score added (+50 pts): " + (player7.getScore() - scoreBeforeGraze == 50));
+        System.out.println("Player Graze Counter: " + player7.getGrazeCount());
 
         System.out.println("\n=== Module 7 Test Completed Successfully ===");
 
@@ -248,6 +249,7 @@ public class Test {
         System.out.println("HUD Received Initial Score: " + hud.getScore());
         System.out.println("HUD Received Initial HP:    " + hud.getHp());
         System.out.println("HUD Received Initial Bombs: " + hud.getSpellCards());
+        System.out.println("HUD Received Initial Graze: " + hud.getGrazeCount());
 
         System.out.println("\n--- Testing Command Pattern Execution ---");
 
@@ -277,7 +279,10 @@ public class Test {
         System.out.println("Active Enemy Bullets after BombCommand: " + bManager8.getActiveEnemyBullets().size());
         System.out.println("HUD Received Updated Bombs: " + hud.getSpellCards());
 
-        System.out.println("\n--- Testing Observer Notification on Item Collection ---");
+        System.out.println("\n--- Testing Observer Notification on Graze & Item Collection ---");
+        player8.addGraze();
+        System.out.println("HUD Received Updated Graze: " + hud.getGrazeCount());
+
         Item pItem = new Item(200, 50, ItemType.POWER);
         player8.collectItem(pItem);
         System.out.println("HUD Received Updated Score: " + hud.getScore());

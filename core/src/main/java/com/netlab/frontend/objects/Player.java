@@ -23,7 +23,11 @@ public class Player extends GameObject {
     private int power;
     private int spellCards;
     private long score;
+    private int grazeCount = 0;
     private boolean focused = false;
+
+    private float shootTimer = 0.1f;
+    private float shootCooldown = 0.1f; // Continuous fire rate: 10 shots per second when holding Z
 
     // Observer Pattern Subject
     private List<GameObserver> observers = new ArrayList<>();
@@ -66,6 +70,7 @@ public class Player extends GameObject {
             observer.onHpChanged(hp);
             observer.onSpellCardsChanged(spellCards);
             observer.onPowerChanged(power);
+            observer.onGrazeChanged(grazeCount);
         }
     }
 
@@ -89,9 +94,14 @@ public class Player extends GameObject {
         for (GameObserver obs : observers) obs.onPowerChanged(power);
     }
 
+    private void notifyGrazeChanged() {
+        for (GameObserver obs : observers) obs.onGrazeChanged(grazeCount);
+    }
+
     @Override
     public void update(float delta) {
         super.update(delta); // Advances stateTime for idle animations
+        shootTimer += delta;  // Accumulates continuous fire timer
     }
 
     // Command Pattern Movement execution with Playfield Clamping
@@ -114,9 +124,12 @@ public class Player extends GameObject {
         if (y > maxY) y = maxY;
     }
 
-    // Command Pattern Bullet Shooting
+    // Command Pattern Bullet Shooting (Supports holding Z key with cooldown)
     public void shootBullet(BulletManager bulletManager) {
-        bulletManager.spawnPlayerBullet(x + width / 2 - 8, y + height, 0, 400f, 10 + power);
+        if (shootTimer >= shootCooldown) {
+            bulletManager.spawnPlayerBullet(x + width / 2 - 8, y + height, 0, 400f, 10 + power);
+            shootTimer = 0f;
+        }
     }
 
     // Command Pattern Bomb / Spell Card execution
@@ -131,9 +144,28 @@ public class Player extends GameObject {
         }
     }
 
+    public void addGraze() {
+        this.grazeCount++;
+        addScore(50);
+        notifyGrazeChanged();
+    }
+
     @Override
     public void render(SpriteBatch batch) {
         super.render(batch);
+    }
+
+    // Renders visual core hurtbox indicator dot when Focus Mode (Shift) is active
+    public void renderFocusIndicator(ShapeRenderer shapeRenderer) {
+        if (focused && shapeRenderer != null && active) {
+            Rectangle core = getCoreHitbox();
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(Color.RED);
+            shapeRenderer.circle(core.x + core.width / 2f, core.y + core.height / 2f, 4f);
+            shapeRenderer.setColor(Color.WHITE);
+            shapeRenderer.circle(core.x + core.width / 2f, core.y + core.height / 2f, 2f);
+            shapeRenderer.end();
+        }
     }
 
     @Override
@@ -220,6 +252,8 @@ public class Player extends GameObject {
 
     public boolean isFocused() { return focused; }
     public void setFocused(boolean focused) { this.focused = focused; }
+
+    public int getGrazeCount() { return grazeCount; }
 
     // Encapsulation getters and setters
     public String getName() { return name; }

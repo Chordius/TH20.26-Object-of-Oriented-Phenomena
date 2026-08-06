@@ -31,13 +31,13 @@ public class InputHandler {
             moveCommand.execute(player, bulletManager);
         }
 
-        // 3. Shoot Command (Z key)
-        if (Gdx.input != null && Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
+        // 3. Shoot Command (Z key - supports holding down Z for continuous stream)
+        if (Gdx.input != null && Gdx.input.isKeyPressed(Input.Keys.Z)) {
             Command shootCommand = new ShootCommand();
             shootCommand.execute(player, bulletManager);
         }
 
-        // 4. Bomb / Spell Card Command (X key)
+        // 4. Bomb / Spell Card Command (X key - tap once)
         if (Gdx.input != null && Gdx.input.isKeyJustPressed(Input.Keys.X)) {
             Command bombCommand = new BombCommand();
             bombCommand.execute(player, bulletManager);

@@ -45,7 +45,7 @@ public class CollisionReferee {
                 // Priority B: Graze Hitbox Collision (Passes close to player without hitting core)
                 else if (!bullet.hasBeenGrazed() && bullet.getCoreHitbox().overlaps(player.getGrazeHitbox())) {
                     bullet.setGrazed(true);
-                    player.addScore(50); // Graze bonus score
+                    player.addGraze(); // Increments graze count, adds 50 pts, and notifies GameObserver HUD!
                     System.out.println("[CollisionReferee] GRAZE! " + player.getName() + " grazed an enemy bullet (+50 pts)!");
                 }
             }

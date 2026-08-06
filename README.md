@@ -5,7 +5,7 @@
 Module 8 introduces students to input decoupling and event-driven UI updates through two core Object-Oriented Design Patterns:
 
 1. **Command Pattern**: Encapsulates player actions (`MoveCommand`, `ShootCommand`, `FocusCommand`, `BombCommand`) into standalone Command objects. Decouples raw hardware input handling (`InputHandler`) from `Player` execution.
-2. **Observer Pattern**: Implements event-driven UI updates where `Player` acts as a Subject notifying registered `GameObserver` listeners (`GameHUD`) of stat changes (`Score`, `HP`, `Spell Cards / Bombs`, `Power`).
+2. **Observer Pattern**: Implements event-driven UI updates where `Player` acts as a Subject notifying registered `GameObserver` listeners (`GameHUD`) of stat changes (`Score`, `HP`, `Spell Cards / Bombs`, `Power`, `Graze`).
 
 ---
 
@@ -36,10 +36,11 @@ Practikans (students) are expected to implement the following core components in
       void onHpChanged(int currentHp);
       void onSpellCardsChanged(int currentSpellCards);
       void onPowerChanged(int currentPower);
+      void onGrazeChanged(int currentGraze);
   }
   ```
 - **Subject in `Player.java`**:
-  Implement observer registration (`registerObserver`) and notification methods (`notifyScoreChanged`, `notifyHpChanged`, `notifySpellCardsChanged`, `notifyPowerChanged`) triggered whenever player stats mutate.
+  Implement observer registration (`registerObserver`) and notification methods (`notifyScoreChanged`, `notifyHpChanged`, `notifySpellCardsChanged`, `notifyPowerChanged`, `notifyGrazeChanged`) triggered whenever player stats mutate.
 
 ---
 
@@ -47,7 +48,7 @@ Practikans (students) are expected to implement the following core components in
 
 To keep the practicum focused on Command & Observer design patterns without spending time on UI rendering math:
 
-* **`GameHUD.java` (Pre-made Observer UI)**: Provided as a pre-made UI class implementing `GameObserver`. Automatically renders the sidebar HUD ($X: 432 \dots 768$) and playfield border ($384 \times 544$).
+* **`GameHUD.java` (Pre-made Observer UI)**: Provided as a pre-made UI class implementing `GameObserver`. Automatically renders the sidebar HUD ($X: 432 \dots 768$) showing Score, HP, Bombs, Power, and Graze counters along with the playfield border ($384 \times 544$).
 
 ---
 

@@ -15,6 +15,7 @@ public class GameHUD implements GameObserver {
     private int hp = 100;
     private int spellCards = 3;
     private int power = 15;
+    private int grazeCount = 0;
 
     public GameHUD() {
         if (Gdx.files != null) {
@@ -42,6 +43,11 @@ public class GameHUD implements GameObserver {
     @Override
     public void onPowerChanged(int currentPower) {
         this.power = currentPower;
+    }
+
+    @Override
+    public void onGrazeChanged(int currentGraze) {
+        this.grazeCount = currentGraze;
     }
 
     public void renderFrame() {
@@ -76,12 +82,13 @@ public class GameHUD implements GameObserver {
                 font.draw(batch, "Player HP: " + hp + "%", 448, 430);
                 font.draw(batch, "SpellCards: " + "★ ".repeat(Math.max(0, spellCards)), 448, 390);
                 font.draw(batch, "Power:     " + power + " / 128", 448, 350);
+                font.draw(batch, "Graze:     " + grazeCount, 448, 310);
 
-                font.draw(batch, "--- CONTROLS ---", 448, 250);
-                font.draw(batch, "Arrow / WASD : Move", 448, 220);
-                font.draw(batch, "Shift        : Focus Mode", 448, 190);
-                font.draw(batch, "Z            : Shoot", 448, 160);
-                font.draw(batch, "X            : SpellCard (Bomb)", 448, 130);
+                font.draw(batch, "--- CONTROLS ---", 448, 230);
+                font.draw(batch, "Arrow / WASD : Move", 448, 200);
+                font.draw(batch, "Shift        : Focus Mode", 448, 170);
+                font.draw(batch, "Z            : Shoot", 448, 140);
+                font.draw(batch, "X            : SpellCard (Bomb)", 448, 110);
             }
         }
     }
@@ -91,8 +98,10 @@ public class GameHUD implements GameObserver {
         if (shapeRenderer != null) shapeRenderer.dispose();
     }
 
+    public ShapeRenderer getShapeRenderer() { return shapeRenderer; }
     public long getScore() { return score; }
     public int getHp() { return hp; }
     public int getSpellCards() { return spellCards; }
     public int getPower() { return power; }
+    public int getGrazeCount() { return grazeCount; }
 }
