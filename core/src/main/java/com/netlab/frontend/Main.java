@@ -48,8 +48,13 @@ public class Main extends ApplicationAdapter {
         assets.registerAnimationFromSheet("boss_idle", "cirno.png", 48, 64, 1, 4, 0.25f);
         assets.registerRegionFromSheet("bullet_amulet", "bullets_small.png", 16, 16, 6, 0);
         assets.registerRegionFromSheet("bullet_danmaku", "bullets_small.png", 16, 16, 2, 0);
+
+        // Correct items.png column coordinates (16x16 per cell):
+        // Col 0: Small Power (P), Col 1: Point Item (点), Col 3: Bomb Item (B), Col 5: 1UP Item (1up)
         assets.registerRegionFromSheet("item_power", "items.png", 16, 16, 0, 0);
-        assets.registerRegionFromSheet("item_point", "items.png", 16, 16, 0, 2);
+        assets.registerRegionFromSheet("item_point", "items.png", 16, 16, 0, 1);
+        assets.registerRegionFromSheet("item_bomb", "items.png", 16, 16, 0, 3);
+        assets.registerRegionFromSheet("item_life", "items.png", 16, 16, 0, 5);
 
         // 2. Instantiate entities via Factory Pattern (EntityFactory)
         player = EntityFactory.createPlayer(280, 40, "Reimu Hakurei", 100, 15, 3);

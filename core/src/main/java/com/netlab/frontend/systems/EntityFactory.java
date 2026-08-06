@@ -34,7 +34,12 @@ public class EntityFactory {
     }
 
     public static Item createItem(float x, float y, ItemType itemType) {
-        String key = (itemType == ItemType.POWER) ? "item_power" : "item_point";
+        String key = switch (itemType) {
+            case POWER -> "item_power";
+            case POINT -> "item_point";
+            case BOMB  -> "item_bomb";
+            case LIFE  -> "item_life";
+        };
         TextureRegion sprite = AssetManager.getInstance().getTextureRegion(key);
         Item item = new Item(x, y, itemType);
         item.setSprite(sprite);
