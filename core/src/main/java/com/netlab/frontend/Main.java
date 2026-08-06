@@ -2,6 +2,7 @@ package com.netlab.frontend;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.netlab.frontend.commands.InputHandler;
@@ -48,7 +49,18 @@ public class Main extends ApplicationAdapter {
 
         // 1. Dynamic Asset Registration (AssetManager - Singleton + Flyweight)
         AssetManager assets = AssetManager.getInstance();
-        assets.registerAnimationFromSheet("player_idle", "player.png", 32, 48, 0, 4, 0.25f);
+        
+        // Idle Animation (4 frames, looping)
+        assets.registerAnimationFromSheet("player_idle", "player.png", 32, 48, 0, 0, 4, 0.25f, Animation.PlayMode.LOOP);
+
+        // Left Banking: First 3 transition frames ONCE (startCol 0), then last 4 bank frames LOOP (startCol 3)
+        assets.registerAnimationFromSheet("player_left_start", "player.png", 32, 48, 1, 0, 3, 0.08f, Animation.PlayMode.NORMAL);
+        assets.registerAnimationFromSheet("player_left_loop",  "player.png", 32, 48, 1, 3, 4, 0.12f, Animation.PlayMode.LOOP);
+
+        // Right Banking (Flipped): First 3 transition frames ONCE, then last 4 bank frames LOOP
+        assets.registerFlippedAnimationFromSheet("player_right_start", "player.png", 32, 48, 1, 0, 3, 0.08f, Animation.PlayMode.NORMAL, true, false);
+        assets.registerFlippedAnimationFromSheet("player_right_loop",  "player.png", 32, 48, 1, 3, 4, 0.12f, Animation.PlayMode.LOOP, true, false);
+
         assets.registerAnimationFromSheet("fairy_idle", "fairy.png", 32, 32, 1, 8, 0.125f);
         assets.registerAnimationFromSheet("boss_idle", "cirno.png", 48, 64, 1, 4, 0.25f);
         assets.registerRegionFromSheet("bullet_amulet", "bullets_small.png", 16, 16, 6, 0);

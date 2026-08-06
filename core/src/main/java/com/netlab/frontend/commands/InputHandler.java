@@ -30,6 +30,7 @@ public class InputHandler {
             Command moveCommand = new MoveCommand(dx * delta * speedMult, dy * delta * speedMult);
             moveCommand.execute(player, bulletManager);
         }
+        player.updateAnimationState(dx); // Dynamically updates banking/tilt animation (left, right, idle)
 
         // 3. Shoot Command (Z key - supports holding down Z for continuous stream)
         if (Gdx.input != null && Gdx.input.isKeyPressed(Input.Keys.Z)) {

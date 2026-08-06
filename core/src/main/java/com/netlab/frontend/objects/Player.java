@@ -3,7 +3,9 @@ package com.netlab.frontend.objects;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.netlab.frontend.observers.GameObserver;
@@ -12,6 +14,7 @@ import com.netlab.frontend.objects.enemies.Enemy;
 import com.netlab.frontend.objects.enemies.Fairy;
 import com.netlab.frontend.objects.items.Item;
 import com.netlab.frontend.objects.items.ItemType;
+import com.netlab.frontend.systems.AssetManager;
 import com.netlab.frontend.systems.BulletManager;
 
 import java.util.ArrayList;
@@ -28,6 +31,9 @@ public class Player extends GameObject {
 
     private float shootTimer = 0.1f;
     private float shootCooldown = 0.1f; // Continuous fire rate: 10 shots per second when holding Z
+
+    private int currentDir = 0; // -1: Left, 0: Idle, 1: Right
+    private float animStateTime = 0f;
 
     // Observer Pattern Subject
     private List<GameObserver> observers = new ArrayList<>();
@@ -102,6 +108,47 @@ public class Player extends GameObject {
     public void update(float delta) {
         super.update(delta); // Advances stateTime for idle animations
         shootTimer += delta;  // Accumulates continuous fire timer
+        animStateTime += delta; // Tracks time spent in current animation state
+
+        // Transition from 3-frame intro tilt to 4-frame continuous loop
+        AssetManager assets = AssetManager.getInstance();
+        if (currentDir < 0) {
+            Animation<TextureRegion> startAnim = assets.getAnimation("player_left_start");
+            Animation<TextureRegion> loopAnim = assets.getAnimation("player_left_loop");
+            if (animation == startAnim && startAnim.isAnimationFinished(animStateTime)) {
+                setAnimation(loopAnim);
+            }
+        } else if (currentDir > 0) {
+            Animation<TextureRegion> startAnim = assets.getAnimation("player_right_start");
+            Animation<TextureRegion> loopAnim = assets.getAnimation("player_right_loop");
+            if (animation == startAnim && startAnim.isAnimationFinished(animStateTime)) {
+                setAnimation(loopAnim);
+            }
+        }
+    }
+
+    // Updates character banking/tilt animation state based on horizontal movement direction (dx)
+    public void updateAnimationState(float dx) {
+        AssetManager assets = AssetManager.getInstance();
+        if (dx < 0) { // Moving Left
+            if (currentDir != -1) {
+                currentDir = -1;
+                animStateTime = 0f;
+                setAnimation(assets.getAnimation("player_left_start"));
+            }
+        } else if (dx > 0) { // Moving Right
+            if (currentDir != 1) {
+                currentDir = 1;
+                animStateTime = 0f;
+                setAnimation(assets.getAnimation("player_right_start"));
+            }
+        } else { // Idle / Stationary
+            if (currentDir != 0) {
+                currentDir = 0;
+                animStateTime = 0f;
+                setAnimation(assets.getAnimation("player_idle"));
+            }
+        }
     }
 
     // Command Pattern Movement execution with Playfield Clamping
