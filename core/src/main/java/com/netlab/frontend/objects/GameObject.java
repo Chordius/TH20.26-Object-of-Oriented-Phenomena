@@ -52,14 +52,18 @@ public abstract class GameObject implements Collidable {
         }
     }
 
+    // Core Hitbox: Centered smaller death hurtbox inside the object
     @Override
     public Rectangle getCoreHitbox() {
-        return new Rectangle(x, y, width, height);
+        float cw = width * 0.5f;
+        float ch = height * 0.5f;
+        return new Rectangle(x + (width - cw) / 2f, y + (height - ch) / 2f, cw, ch);
     }
 
+    // Graze Hitbox: Full sprite dimensions for close-call detection
     @Override
     public Rectangle getGrazeHitbox() {
-        return new Rectangle(x - 10, y - 10, width + 20, height + 20);
+        return new Rectangle(x, y, width, height);
     }
 
     @Override

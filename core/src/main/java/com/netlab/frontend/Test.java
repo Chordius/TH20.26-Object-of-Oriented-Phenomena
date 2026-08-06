@@ -93,7 +93,7 @@ public class Test {
         // 2. Initializing List<GameObject> entities for iterative updates
         List<GameObject> entities = new ArrayList<>();
         Player p = new Player(100, 100, "Reimu Hakurei", 100, 15, 3);
-        Fairy f = new Fairy(100, 100, "Stage 1 Fairy", 20);     // Placed at (100, 100) -> Collides with player!
+        Fairy f = new Fairy(100, 114, "Stage 1 Fairy", 20);     // Placed at (100, 114) -> Overlaps player core hitbox!
         Boss b = new Boss(200, 200, "Cirno", 150);
         Item item = new Item(300, 300, ItemType.POWER);
 
@@ -111,25 +111,25 @@ public class Test {
 
         System.out.println("\n--- Testing Polymorphic Collision Information ---");
 
-        // Test 1: Player at (100, 100) collides with Fairy at (100, 100)
+        // Test 1: Player at (100, 100) collides with Fairy at (100, 114)
         System.out.println("Simulating collision at (100, 100) (Fairy position):");
         if (p.getCoreHitbox().overlaps(f.getCoreHitbox())) {
             p.onCollision(f);
         }
 
-        // Test 2: Move player to Boss at (200, 200)
-        p.setX(200);
-        p.setY(200);
+        // Test 2: Move player to Boss at (208, 208)
+        p.setX(208);
+        p.setY(208);
         System.out.println("Moving player to (200, 200) (Boss position):");
         if (p.getCoreHitbox().overlaps(b.getCoreHitbox())) {
             p.onCollision(b);
         }
 
-        // Test 3: Move player to Item position at (300, item.getY())
-        p.setX(300);
+        // Test 3: Move player to Item position at (290, item.getY())
+        p.setX(290);
         p.setY(item.getY());
         System.out.println("Moving player to (300, " + item.getY() + ") (Item current position):");
-        if (p.getCoreHitbox().overlaps(item.getCoreHitbox())) {
+        if (p.getGrazeHitbox().overlaps(item.getCoreHitbox())) {
             p.onCollision(item);
         }
 
@@ -218,8 +218,8 @@ public class Test {
         System.out.println("Player Pool Size after re-using: " + bulletManager.getPlayerPoolSize());
 
         System.out.println("\n--- Testing Graze vs Core Hitbox Detection ---");
-        // Spawn 16x16 enemy bullet at (175, 50) -> Overlaps Graze Hitbox (x: 190..242, y: 40..108), misses Core Hitbox (x: 200..232, y: 50..98)
-        Bullet enemyBullet = bulletManager.spawnEnemyBullet(175, 50, 0, 0, 15);
+        // Spawn 16x16 enemy bullet at (190, 50) -> Overlaps Graze Hitbox (x: 200..232, y: 50..98), misses Core Hitbox (x: 212..220, y: 70..78)
+        Bullet enemyBullet = bulletManager.spawnEnemyBullet(190, 50, 0, 0, 15);
         long scoreBeforeGraze = player7.getScore();
         referee.resolveCollisions(player7, m7Entities, bulletManager);
         System.out.println("Graze score added (+50 pts): " + (player7.getScore() - scoreBeforeGraze == 50));
