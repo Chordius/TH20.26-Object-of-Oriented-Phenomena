@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.netlab.frontend.observers.GameObserver;
 import com.netlab.frontend.objects.enemies.Boss;
 import com.netlab.frontend.objects.enemies.Enemy;
@@ -43,6 +44,17 @@ public class Player extends GameObject {
         this.power = power;
         this.spellCards = spellCards;
         this.score = 0;
+    }
+
+    // Touhou Hitboxes: Graze Hitbox is full sprite size (32x48), Core Hitbox is small centered dot (8x8)
+    @Override
+    public Rectangle getGrazeHitbox() {
+        return new Rectangle(x, y, width, height); // Full sprite size
+    }
+
+    @Override
+    public Rectangle getCoreHitbox() {
+        return new Rectangle(x + width / 2f - 4f, y + height / 2f - 4f, 8f, 8f); // Small centered 8x8 hurtbox
     }
 
     // Observer Registration & Notification
