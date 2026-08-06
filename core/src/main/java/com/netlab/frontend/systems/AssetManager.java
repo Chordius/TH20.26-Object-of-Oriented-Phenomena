@@ -53,16 +53,20 @@ public class AssetManager {
     }
 
     public void registerAnimationFromSheet(String key, String filename, int tileWidth, int tileHeight, int row, int numFrames, float frameDuration) {
+        registerAnimationFromSheet(key, filename, tileWidth, tileHeight, row, 0, numFrames, frameDuration, Animation.PlayMode.LOOP);
+    }
+
+    public void registerAnimationFromSheet(String key, String filename, int tileWidth, int tileHeight, int row, int startCol, int numFrames, float frameDuration, Animation.PlayMode playMode) {
         Texture tex = loadTexture(filename);
         TextureRegion[][] grid = TextureRegion.split(tex, tileWidth, tileHeight);
 
         TextureRegion[] frames = new TextureRegion[numFrames];
         for (int i = 0; i < numFrames; i++) {
-            frames[i] = grid[row][i];
+            frames[i] = grid[row][startCol + i];
         }
 
         Animation<TextureRegion> anim = new Animation<>(frameDuration, frames);
-        anim.setPlayMode(Animation.PlayMode.LOOP);
+        anim.setPlayMode(playMode);
 
         animationMap.put(key, anim);
         textureRegionMap.put(key, frames[0]); // Default first frame

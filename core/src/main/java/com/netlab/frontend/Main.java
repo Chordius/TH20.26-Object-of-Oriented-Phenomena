@@ -3,6 +3,7 @@ package com.netlab.frontend;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.netlab.frontend.systems.AssetManager;
@@ -35,9 +36,36 @@ public class Main extends ApplicationAdapter {
 
         // 1. Dynamic Asset Registration (AssetManager - Singleton + Flyweight)
         AssetManager assets = AssetManager.getInstance();
-        assets.registerAnimationFromSheet("player_idle", "player.png", 32, 48, 0, 8, 0.125f);
+
+        // --- Reimu (player.png: 32x48, 8 cols per row) ---
+        // Row 0: Idle (Cols 0..3 start once, Cols 4..7 loop)
+        assets.registerAnimationFromSheet("player_idle_start", "player.png", 32, 48, 0, 0, 4, 0.125f, Animation.PlayMode.NORMAL);
+        assets.registerAnimationFromSheet("player_idle_loop",  "player.png", 32, 48, 0, 4, 4, 0.125f, Animation.PlayMode.LOOP);
+
+        // Row 1: Moving Left (Cols 0..3 start once, Cols 4..7 loop)
+        assets.registerAnimationFromSheet("player_left_start", "player.png", 32, 48, 1, 0, 4, 0.08f, Animation.PlayMode.NORMAL);
+        assets.registerAnimationFromSheet("player_left_loop",  "player.png", 32, 48, 1, 4, 4, 0.12f, Animation.PlayMode.LOOP);
+
+        // Row 2: Moving Right (Cols 0..3 start once, Cols 4..7 loop)
+        assets.registerAnimationFromSheet("player_right_start", "player.png", 32, 48, 2, 0, 4, 0.08f, Animation.PlayMode.NORMAL);
+        assets.registerAnimationFromSheet("player_right_loop",  "player.png", 32, 48, 2, 4, 4, 0.12f, Animation.PlayMode.LOOP);
+
+
+        // --- Cirno (cirno.png: 64x64, 4 cols per row) ---
+        // Row 0: Idle (Cols 0..1 start once, Cols 2..3 loop)
+        assets.registerAnimationFromSheet("boss_idle_start", "cirno.png", 64, 64, 0, 0, 2, 0.2f, Animation.PlayMode.NORMAL);
+        assets.registerAnimationFromSheet("boss_idle_loop",  "cirno.png", 64, 64, 0, 2, 2, 0.2f, Animation.PlayMode.LOOP);
+
+        // Row 1: Moving Left (Cols 0..1 start once, Cols 2..3 loop)
+        assets.registerAnimationFromSheet("boss_left_start", "cirno.png", 64, 64, 1, 0, 2, 0.15f, Animation.PlayMode.NORMAL);
+        assets.registerAnimationFromSheet("boss_left_loop",  "cirno.png", 64, 64, 1, 2, 2, 0.15f, Animation.PlayMode.LOOP);
+
+        // Row 2: Moving Right (Cols 0..1 start once, Cols 2..3 loop)
+        assets.registerAnimationFromSheet("boss_right_start", "cirno.png", 64, 64, 2, 0, 2, 0.15f, Animation.PlayMode.NORMAL);
+        assets.registerAnimationFromSheet("boss_right_loop",  "cirno.png", 64, 64, 2, 2, 2, 0.15f, Animation.PlayMode.LOOP);
+
+        // Fairy Idle & Bullets
         assets.registerAnimationFromSheet("fairy_idle", "fairy.png", 32, 32, 1, 8, 0.125f);
-        assets.registerAnimationFromSheet("boss_idle", "cirno.png", 64, 64, 0, 4, 0.2f);
         assets.registerRegionFromSheet("bullet_amulet", "bullets_small.png", 16, 16, 6, 0);
         assets.registerRegionFromSheet("bullet_danmaku", "bullets_small.png", 16, 16, 2, 0);
 

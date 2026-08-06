@@ -13,9 +13,8 @@ import com.netlab.frontend.objects.items.ItemType;
 public class EntityFactory {
 
     public static Player createPlayer(float x, float y, String name, int hp, int power, int spellCards) {
-        Animation<TextureRegion> idleAnim = AssetManager.getInstance().getAnimation("player_idle");
         Player player = new Player(x, y, name, hp, power, spellCards);
-        player.setAnimation(idleAnim);
+        player.updateAnimationState(0);
         return player;
     }
 
@@ -27,9 +26,8 @@ public class EntityFactory {
     }
 
     public static Boss createBoss(float x, float y, String name, int hp) {
-        Animation<TextureRegion> idleAnim = AssetManager.getInstance().getAnimation("boss_idle");
         Boss boss = new Boss(x, y, name, hp);
-        boss.setAnimation(idleAnim);
+        boss.updateAnimationState(0);
         return boss;
     }
 

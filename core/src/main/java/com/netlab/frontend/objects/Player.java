@@ -3,12 +3,15 @@ package com.netlab.frontend.objects;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.netlab.frontend.objects.bullets.Bullet;
 import com.netlab.frontend.objects.items.Item;
 import com.netlab.frontend.objects.items.ItemType;
 import com.netlab.frontend.objects.enemies.Boss;
 import com.netlab.frontend.objects.enemies.Enemy;
 import com.netlab.frontend.objects.enemies.Fairy;
+import com.netlab.frontend.systems.AssetManager;
 import com.netlab.frontend.systems.EntityFactory;
 
 public class Player extends GameObject {
@@ -17,6 +20,9 @@ public class Player extends GameObject {
     private int power;
     private int spellCards;
     private long score;
+
+    private int currentDir = 0; // -1: Left, 0: Idle, 1: Right
+    private float animStateTime = 0f;
 
     public Player(String name, int hp, int power, int spellCards) {
         super(280, 40, 32, 48, 200f, Color.RED);
@@ -39,8 +45,10 @@ public class Player extends GameObject {
     @Override
     public void update(float delta) {
         super.update(delta); // Advances stateTime for idle animations
+        animStateTime += delta;
 
         // Player movement handling (LibGDX input)
+        float dx = 0;
         if (Gdx.input != null) {
             if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {
                 y += speed * delta;
@@ -50,9 +58,58 @@ public class Player extends GameObject {
             }
             if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
                 x -= speed * delta;
+                dx -= 1;
             }
             if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
                 x += speed * delta;
+                dx += 1;
+            }
+        }
+
+        updateAnimationState(dx);
+
+        // Transition from start phase (first half) to loop phase (latter half)
+        AssetManager assets = AssetManager.getInstance();
+        if (currentDir < 0) {
+            Animation<TextureRegion> startAnim = assets.getAnimation("player_left_start");
+            Animation<TextureRegion> loopAnim = assets.getAnimation("player_left_loop");
+            if (animation == startAnim && startAnim.isAnimationFinished(animStateTime)) {
+                setAnimation(loopAnim);
+            }
+        } else if (currentDir > 0) {
+            Animation<TextureRegion> startAnim = assets.getAnimation("player_right_start");
+            Animation<TextureRegion> loopAnim = assets.getAnimation("player_right_loop");
+            if (animation == startAnim && startAnim.isAnimationFinished(animStateTime)) {
+                setAnimation(loopAnim);
+            }
+        } else {
+            Animation<TextureRegion> startAnim = assets.getAnimation("player_idle_start");
+            Animation<TextureRegion> loopAnim = assets.getAnimation("player_idle_loop");
+            if (animation == startAnim && startAnim.isAnimationFinished(animStateTime)) {
+                setAnimation(loopAnim);
+            }
+        }
+    }
+
+    public void updateAnimationState(float dx) {
+        AssetManager assets = AssetManager.getInstance();
+        if (dx < 0) { // Moving Left
+            if (currentDir != -1) {
+                currentDir = -1;
+                animStateTime = 0f;
+                setAnimation(assets.getAnimation("player_left_start"));
+            }
+        } else if (dx > 0) { // Moving Right
+            if (currentDir != 1) {
+                currentDir = 1;
+                animStateTime = 0f;
+                setAnimation(assets.getAnimation("player_right_start"));
+            }
+        } else { // Idle
+            if (currentDir != 0 || animation == null) {
+                currentDir = 0;
+                animStateTime = 0f;
+                setAnimation(assets.getAnimation("player_idle_start"));
             }
         }
     }
