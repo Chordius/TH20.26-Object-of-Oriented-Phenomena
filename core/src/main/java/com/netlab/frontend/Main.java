@@ -35,9 +35,9 @@ public class Main extends ApplicationAdapter {
 
         // 1. Dynamic Asset Registration (AssetManager - Singleton + Flyweight)
         AssetManager assets = AssetManager.getInstance();
-        assets.registerAnimationFromSheet("player_idle", "player.png", 32, 48, 0, 4, 0.25f);
+        assets.registerAnimationFromSheet("player_idle", "player.png", 32, 48, 0, 8, 0.125f);
         assets.registerAnimationFromSheet("fairy_idle", "fairy.png", 32, 32, 1, 8, 0.125f);
-        assets.registerAnimationFromSheet("boss_idle", "cirno.png", 48, 64, 1, 4, 0.25f);
+        assets.registerAnimationFromSheet("boss_idle", "cirno.png", 64, 64, 0, 4, 0.2f);
         assets.registerRegionFromSheet("bullet_amulet", "bullets_small.png", 16, 16, 6, 0);
         assets.registerRegionFromSheet("bullet_danmaku", "bullets_small.png", 16, 16, 2, 0);
 
