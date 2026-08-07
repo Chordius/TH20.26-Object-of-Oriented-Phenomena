@@ -237,15 +237,21 @@ public class Player extends EntityShooter {
     }
 
     // Command Pattern Bomb / Spell Card execution
-    public void useBomb(BulletManager bulletManager) {
+    public void useBomb(BulletManager bulletManager, List<GameObject> entities) {
         if (spellCards > 0) {
             spellCards--;
             notifySpellCardsChanged();
-            bulletManager.clearEnemyBullets(); // Clears all enemy bullets on screen!
+            if (bulletManager != null) {
+                bulletManager.clearEnemyBullets(entities); // Clears all enemy bullets on screen & converts to drop items!
+            }
             System.out.println(name + " unleashes SPELL CARD (Fantasy Seal)! All enemy bullets cleared!");
         } else {
             System.out.println("No Spell Cards (Bombs) remaining!");
         }
+    }
+
+    public void useBomb(BulletManager bulletManager) {
+        useBomb(bulletManager, null);
     }
 
     public void addGraze() {
