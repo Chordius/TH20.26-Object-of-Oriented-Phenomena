@@ -19,9 +19,6 @@ public class FairyWaveState implements WaveState {
         }
         fairy.setMovementPattern(new LinearEntityMovement(30f, -10f));
         fairy.setShootingPattern(new SpreadShot(150f, 3, 20f, 10));
-
-        manager.spawnItem(180, 450, ItemType.POWER);
-        manager.spawnItem(220, 480, ItemType.POINT);
     }
 
     @Override
