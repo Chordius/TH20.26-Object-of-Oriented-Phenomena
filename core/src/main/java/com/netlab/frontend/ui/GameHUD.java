@@ -64,10 +64,6 @@ public class GameHUD implements GameObserver {
         }
     }
 
-    public void renderFrame() {
-        renderBackground();
-    }
-
     public void render(SpriteBatch batch) {
         if (batch != null) {
             if (font == null && Gdx.files != null) {
