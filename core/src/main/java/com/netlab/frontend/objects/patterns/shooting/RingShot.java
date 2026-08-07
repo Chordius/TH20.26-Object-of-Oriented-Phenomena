@@ -1,0 +1,44 @@
+package com.netlab.frontend.objects.patterns.shooting;
+
+import com.netlab.frontend.objects.patterns.ShootingPattern;
+import com.netlab.frontend.systems.BulletManager;
+
+public class RingShot implements ShootingPattern {
+    private float bulletSpeed;
+    private int bulletCount;
+    private int damage;
+
+    public RingShot(float bulletSpeed, int bulletCount, int damage) {
+        this.bulletSpeed = bulletSpeed;
+        this.bulletCount = Math.max(3, bulletCount);
+        this.damage = damage;
+    }
+
+    @Override
+    public void execute(float originX, float originY, BulletManager bulletManager, boolean isPlayer) {
+        if (bulletManager == null) return;
+
+        float angleStep = 360f / bulletCount;
+        for (int i = 0; i < bulletCount; i++) {
+            float angle = i * angleStep;
+            float rad = (float) Math.toRadians(angle);
+            float vx = (float) (Math.cos(rad) * bulletSpeed);
+            float vy = (float) (Math.sin(rad) * bulletSpeed);
+
+            if (isPlayer) {
+                bulletManager.spawnPlayerBullet(originX, originY, vx, vy, damage);
+            } else {
+                bulletManager.spawnEnemyBullet(originX, originY, vx, vy, damage);
+            }
+        }
+    }
+
+    public float getBulletSpeed() { return bulletSpeed; }
+    public void setBulletSpeed(float bulletSpeed) { this.bulletSpeed = bulletSpeed; }
+
+    public int getBulletCount() { return bulletCount; }
+    public void setBulletCount(int bulletCount) { this.bulletCount = bulletCount; }
+
+    public int getDamage() { return damage; }
+    public void setDamage(int damage) { this.damage = damage; }
+}

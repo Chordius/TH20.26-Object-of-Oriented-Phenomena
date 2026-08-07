@@ -1,60 +1,59 @@
-# Touhou OOP Practicum - Module 8: Command & Observer Patterns
+# Touhou OOP Practicum - Module 9: Strategy Pattern & Dependency Injection
 
 ## 🎯 Purpose & Design Framework (Tujuan & Modul Design)
 
-Module 8 introduces students to input decoupling and event-driven UI updates through two core Object-Oriented Design Patterns:
+Module 9 explores interchangeable algorithms and runtime behavior swapping using two core Object-Oriented software design concepts:
 
-1. **Command Pattern**: Encapsulates player actions (`MoveCommand`, `ShootCommand`, `FocusCommand`, `BombCommand`) into standalone Command objects. Decouples raw hardware input handling (`InputHandler`) from `Player` execution.
-2. **Observer Pattern**: Implements event-driven UI updates where `Player` acts as a Subject notifying registered `GameObserver` listeners (`GameHUD`) of stat changes (`Score`, `HP`, `Spell Cards / Bombs`, `Power`, `Graze`).
+1. **Strategy Pattern**: Encapsulates shooting algorithms (`ShootingPattern`), bullet trajectory behaviors (`BulletMovementPattern`), and entity movement behaviors (`EntityMovementPattern`) into independent family classes that can be swapped dynamically.
+2. **Dependency Injection**: Injects strategy implementations into entities (`EntityShooter`) and bullets via constructor or setter methods (`setShootingPattern`, `setMovementPattern`), decoupling entity definitions from specific movement and shooting implementations.
 
 ---
 
 ## 👨‍💻 Student Implementation Expectations (Tugas Praktikan)
 
-Practikans (students) are expected to implement the following core components in this module:
+Practikans (students) are expected to implement and refactor the following core components in this module:
 
-### 1. Command Pattern (`com.netlab.frontend.commands`)
-- **`Command` Interface**:
-  ```java
-  public interface Command {
-      void execute(Player player, BulletManager bulletManager);
-  }
-  ```
-- **Concrete Commands**:
-  - `MoveCommand(dx, dy)`: Executes player movement.
-  - `ShootCommand`: Triggers `player.shootBullet(bulletManager)`.
-  - `FocusCommand(focused)`: Toggles Focus Mode (reduces movement speed for precise dodging).
-  - `BombCommand`: Triggers Spell Card (consumes 1 bomb, clears active enemy bullets).
-- **`InputHandler`**:
-  Maps raw keyboard keys (`Shift`, `Z`, `X`, `WASD` / Arrows) to their corresponding `Command` execution.
+### 1. Entity Base Class Refactoring (`EntityShooter.java`)
+- **`EntityShooter` Abstract Class**:
+  - Extends `GameObject`.
+  - Encapsulates `ShootingPattern` and `EntityMovementPattern` strategies.
+  - Implements Dependency Injection setters: `setShootingPattern(pattern)` and `setMovementPattern(pattern)`.
+  - Both `Player` and `Enemy` (and its subclasses `Fairy`, `Boss`) inherit from `EntityShooter`.
 
-### 2. Observer Pattern (`com.netlab.frontend.observers` & `Player.java`)
-- **`GameObserver` Interface**:
-  ```java
-  public interface GameObserver {
-      void onScoreChanged(long newScore);
-      void onHpChanged(int currentHp);
-      void onSpellCardsChanged(int currentSpellCards);
-      void onPowerChanged(int currentPower);
-      void onGrazeChanged(int currentGraze);
-  }
-  ```
-- **Subject in `Player.java`**:
-  Implement observer registration (`registerObserver`) and notification methods (`notifyScoreChanged`, `notifyHpChanged`, `notifySpellCardsChanged`, `notifyPowerChanged`, `notifyGrazeChanged`) triggered whenever player stats mutate.
+### 2. Strategy Patterns (`com.netlab.frontend.objects.patterns`)
+
+#### A. **Shooting Strategies** (`com.netlab.frontend.objects.patterns.shooting`)
+- **`ShootingPattern`**: `execute(originX, originY, bulletManager, isPlayer)`
+  - `LinearShot`: Fires straight parallel bullet streams.
+  - `SpreadShot`: Fires angled fan/cone spread bullet patterns.
+  - `RingShot`: Fires a 360-degree radial ring bullet burst.
+
+#### B. **Bullet Movement Strategies** (`com.netlab.frontend.objects.patterns.bullet`)
+- **`BulletMovementPattern`**: `move(bullet, delta)`
+  - `LinearBulletMovement`: Standard constant velocity straight movement.
+  - `SineWaveBulletMovement`: Oscillating sine wave bullet trajectory.
+  - `HomingBulletMovement`: Steers bullet toward target entity.
+
+#### C. **Entity Movement Strategies** (`com.netlab.frontend.objects.patterns.entity`)
+- **`EntityMovementPattern`**: `move(entity, delta)`
+  - `FixedMovement`: Stationary/idle stance.
+  - `LinearEntityMovement`: Straight velocity vector movement.
+  - `ZigzagEntityMovement`: Oscillating zigzag stage enemy entry pattern.
 
 ---
 
-## 🛠️ Pre-Made Framework Components (Framework Bawaan untuk Asisten Laboratory)
+## 🛠️ Pre-Made Framework Components
 
-To keep the practicum focused on Command & Observer design patterns without spending time on UI rendering math:
+To keep the practicum focused on Strategy Pattern and Dependency Injection architecture:
 
-* **`GameHUD.java` (Pre-made Observer UI)**: Provided as a pre-made UI class implementing `GameObserver`. Automatically renders the sidebar HUD ($X: 432 \dots 768$) showing Score, HP, Bombs, Power, and Graze counters along with the playfield border ($384 \times 544$).
+* **`BulletManager.java` & Object Pool**: Pre-made bullet spawning and recycling queue system.
+* **`CollisionReferee.java`**: Pre-made Mediator collision detector.
 
 ---
 
 ## 🧪 Verification & Testing Commands
 
-To verify compilation and run the full practicum test suite (Modules 1 through 8):
+To verify compilation and run the full practicum test suite (Modules 1 through 9):
 
 ```bash
 ./gradlew core:runTest

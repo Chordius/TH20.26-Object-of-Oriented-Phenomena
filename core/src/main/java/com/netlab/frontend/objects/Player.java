@@ -14,13 +14,17 @@ import com.netlab.frontend.objects.enemies.Enemy;
 import com.netlab.frontend.objects.enemies.Fairy;
 import com.netlab.frontend.objects.items.Item;
 import com.netlab.frontend.objects.items.ItemType;
+import com.netlab.frontend.objects.patterns.ShootingPattern;
+import com.netlab.frontend.objects.patterns.shooting.LinearShot;
+import com.netlab.frontend.objects.patterns.entity.EntityMovementPattern;
+import com.netlab.frontend.objects.patterns.entity.FixedMovement;
 import com.netlab.frontend.systems.AssetManager;
 import com.netlab.frontend.systems.BulletManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Player extends GameObject {
+public class Player extends EntityShooter {
     private String name;
     private int hp;
     private int power;
@@ -44,10 +48,24 @@ public class Player extends GameObject {
         this.power = power;
         this.spellCards = spellCards;
         this.score = 0;
+        setShootingPattern(new LinearShot(400f, 25));
+        setMovementPattern(new FixedMovement());
     }
 
     public Player(float x, float y, String name, int hp, int power, int spellCards) {
         super(x, y, 32, 48, 200f, Color.RED);
+        this.name = name;
+        this.hp = hp;
+        this.power = power;
+        this.spellCards = spellCards;
+        this.score = 0;
+        setShootingPattern(new LinearShot(400f, 25));
+        setMovementPattern(new FixedMovement());
+    }
+
+    public Player(float x, float y, String name, int hp, int power, int spellCards,
+                  ShootingPattern shootingPattern, EntityMovementPattern movementPattern) {
+        super(x, y, 32, 48, 200f, Color.RED, shootingPattern, movementPattern);
         this.name = name;
         this.hp = hp;
         this.power = power;
@@ -105,7 +123,7 @@ public class Player extends GameObject {
 
     @Override
     public void update(float delta) {
-        super.update(delta); // Advances stateTime for idle animations
+        super.update(delta); // Advances stateTime and movementPattern
         shootTimer += delta;  // Accumulates continuous fire timer
 
         // Transition from 4-frame intro tilt (start) to 4-frame continuous loop (loop)
@@ -126,9 +144,6 @@ public class Player extends GameObject {
     }
 
     // Updates character banking/tilt animation state based on horizontal movement direction (dx)
-    // Row 1: Left (cols 0..3 start, cols 4..7 loop)
-    // Row 2: Right (cols 0..3 start, cols 4..7 loop)
-    // Row 0: Idle (cols 0..7 loop)
     public void updateAnimationState(float dx) {
         AssetManager assets = AssetManager.getInstance();
         if (dx < 0) { // Moving Left (Row 1)
@@ -170,9 +185,14 @@ public class Player extends GameObject {
     }
 
     // Command Pattern Bullet Shooting (Supports holding Z key with cooldown)
+    @Override
     public void shootBullet(BulletManager bulletManager) {
         if (shootTimer >= shootCooldown) {
-            bulletManager.spawnPlayerBullet(x + width / 2 - 8, y + height, 0, 400f, 10 + power);
+            if (shootingPattern != null) {
+                super.shootBullet(bulletManager);
+            } else {
+                bulletManager.spawnPlayerBullet(x + width / 2 - 8, y + height, 0, 400f, 10 + power);
+            }
             shootTimer = 0f;
         }
     }

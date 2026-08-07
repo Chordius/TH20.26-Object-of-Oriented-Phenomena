@@ -1,12 +1,8 @@
 package com.netlab.frontend;
 
-import com.netlab.frontend.commands.BombCommand;
-import com.netlab.frontend.commands.Command;
-import com.netlab.frontend.commands.FocusCommand;
-import com.netlab.frontend.commands.MoveCommand;
-import com.netlab.frontend.commands.ShootCommand;
-import com.netlab.frontend.observers.GameObserver;
+import com.netlab.frontend.commands.*;
 import com.netlab.frontend.objects.GameObject;
+import com.netlab.frontend.objects.EntityShooter;
 import com.netlab.frontend.objects.Player;
 import com.netlab.frontend.objects.bullets.Bullet;
 import com.netlab.frontend.objects.bullets.BulletType;
@@ -15,6 +11,17 @@ import com.netlab.frontend.objects.enemies.Enemy;
 import com.netlab.frontend.objects.enemies.Fairy;
 import com.netlab.frontend.objects.items.Item;
 import com.netlab.frontend.objects.items.ItemType;
+import com.netlab.frontend.objects.patterns.ShootingPattern;
+import com.netlab.frontend.objects.patterns.shooting.SpreadShot;
+import com.netlab.frontend.objects.patterns.shooting.LinearShot;
+import com.netlab.frontend.objects.patterns.shooting.RingShot;
+import com.netlab.frontend.objects.patterns.bullet.LinearBulletMovement;
+import com.netlab.frontend.objects.patterns.bullet.SineWaveBulletMovement;
+import com.netlab.frontend.objects.patterns.bullet.HomingBulletMovement;
+import com.netlab.frontend.objects.patterns.entity.FixedMovement;
+import com.netlab.frontend.objects.patterns.entity.LinearEntityMovement;
+import com.netlab.frontend.objects.patterns.entity.TargetPointMovement;
+import com.netlab.frontend.objects.patterns.entity.ZigzagEntityMovement;
 import com.netlab.frontend.systems.BulletManager;
 import com.netlab.frontend.systems.CollisionReferee;
 import com.netlab.frontend.ui.GameHUD;
@@ -25,32 +32,35 @@ import java.util.List;
 
 public class Test {
     public static void main(String[] args) {
-        Test runner = new Test(); // Instantiating Test runner instance
+        runTest();
+    }
+
+    public static void runTest() {
+        Test runner = new Test();
 
         // ==========================================
         // MODULE 1: BASIC CLASSES & OBJECT INTERACTION
         // ==========================================
         System.out.println("=== TOUHOU OOP PRACTICUM - MODULE 1: BASIC CLASSES & OBJECT INTERACTION ===");
 
-        // Instantiating objects (Player and Enemy)
-        Player reimu = new Player("Reimu Hakurei", 100, 15, 3);
-        Enemy fairyBoss = new Enemy("Cirno (Stage 2 Boss)", 50);
+        Player player = new Player("Reimu Hakurei", 100, 15, 3);
+        Boss cirno = new Boss("Cirno (Stage 2 Boss)", 50);
 
         System.out.println("\n--- Initial Battle State ---");
-        System.out.println("Player: " + reimu.getName() + " | HP: " + reimu.getHp() + " | Power: " + reimu.getPower() + " | SpellCards: " + reimu.getSpellCards());
-        System.out.println("Enemy:  " + fairyBoss.getName() + " | HP: " + fairyBoss.getHp());
+        System.out.println("Player: " + player.getName() + " | HP: " + player.getHp() + " | Power: " + player.getPower() + " | SpellCards: " + player.getSpellCards());
+        System.out.println("Enemy:  " + cirno.getName() + " | HP: " + cirno.getHp());
 
         System.out.println("\n--- Turn 1: Player Shoots Enemy ---");
-        reimu.shoot(fairyBoss);
+        player.shoot(cirno);
 
         System.out.println("\n--- Turn 2: Enemy Counter-attacks ---");
-        fairyBoss.attack(reimu, 30);
+        cirno.attack(player, 30);
 
         System.out.println("\n--- Turn 3: Player Shoots Enemy Finishing Blow ---");
-        reimu.shoot(fairyBoss);
+        player.shoot(cirno);
 
         System.out.println("\n--- Turn 4: Enemy Deals Fatal Damage to Reimu ---");
-        fairyBoss.attack(reimu, 80);
+        cirno.attack(player, 80);
 
         System.out.println("\n=== Battle Simulation Complete ===");
 
@@ -60,17 +70,16 @@ public class Test {
         // ==========================================
         System.out.println("\n\n=== TOUHOU OOP PRACTICUM - MODULE 2: ENCAPSULATION, INHERITANCE & SCORE SYSTEM ===");
 
-        // Instantiating polymorphic objects
-        Player reimu2 = new Player("Reimu Hakurei", 100, 15, 3);
+        Player player2 = new Player("Reimu Hakurei", 100, 15, 3);
         Fairy fairy = new Fairy("Stage 1 Fairy", 20);
-        Boss cirno = new Boss("Cirno (Stage 2 Boss)", 150);
-        Item pointItem = new Item(200, 450, 12, 12, 120f, "Point Item", 1000L);
+        Boss cirno2 = new Boss("Cirno (Stage 2 Boss)", 150);
+        Item pointItem = new Item(300, 450, ItemType.POINT);
 
         System.out.println("\n--- Testing Encapsulation & Inheritance ---");
-        System.out.println("Player: " + reimu2.getName() + " | Position: (" + reimu2.getX() + ", " + reimu2.getY() + ")");
+        System.out.println("Player: " + player2.getName() + " | Position: (" + player2.getX() + ", " + player2.getY() + ")");
         System.out.println("Fairy:  " + fairy.getName() + " | Defeat Worth: " + fairy.getScoreValue() + " pts");
-        System.out.println("Boss:   " + cirno.getName() + " | Defeat Worth: " + cirno.getScoreValue() + " pts | Size: " + cirno.getWidth() + "x" + cirno.getHeight());
-        System.out.println("Item:   " + pointItem.getItemType() + " | Value: " + pointItem.getScoreValue() + " pts | Speed: " + pointItem.getSpeed());
+        System.out.println("Boss:   " + cirno2.getName() + " | Defeat Worth: " + cirno2.getScoreValue() + " pts | Size: " + cirno2.getWidth() + "x" + cirno2.getHeight());
+        System.out.println("Item:   " + pointItem.getItemType() + " Item | Value: " + pointItem.getScoreValue() + " pts | Speed: " + pointItem.getSpeed());
 
         System.out.println("\n--- Testing Item Movement Update ---");
         System.out.println("Initial Item Y: " + pointItem.getY());
@@ -78,80 +87,70 @@ public class Test {
         System.out.println("Item Y after 0.5s update: " + pointItem.getY() + " (linear downward movement)");
 
         System.out.println("\n--- Testing Scoring System ---");
-        System.out.println("Initial Score: " + reimu2.getScore());
-        reimu2.shoot(fairy);
-        reimu2.collectItem(pointItem);
-        reimu2.shoot(cirno);
-        System.out.println("Final Score: " + reimu2.getScore() + " pts");
+        System.out.println("Initial Score: " + player2.getScore());
+        player2.shoot(fairy);
+        player2.collectItem(pointItem);
+        player2.shoot(cirno2);
+        System.out.println("Final Score: " + player2.getScore() + " pts");
 
         System.out.println("\n=== Module 2 Test Completed Successfully ===");
 
 
         // ==========================================
-        // MODULE 3: POLYMORPHISM, ABSTRACTION & COLLISION HANDLING
+        // MODULE 3: POLYMORPHISM & ABSTRACTION
         // ==========================================
         System.out.println("\n\n=== TOUHOU OOP PRACTICUM - MODULE 3: POLYMORPHISM & ABSTRACTION ===");
 
-        // 1. Testing Abstraction & Enums
         System.out.println("--- Testing ItemType & BulletType Enums ---");
-        System.out.println("Available Item Types: " + ItemType.POWER + ", " + ItemType.POINT + ", " + ItemType.BOMB + ", " + ItemType.LIFE);
-        System.out.println("Available Bullet Types: " + BulletType.DANMAKU + ", " + BulletType.AMULET + ", " + BulletType.LASER + ", " + BulletType.MASTER_SPARK);
+        System.out.print("Available Item Types: ");
+        for (ItemType type : ItemType.values()) {
+            System.out.print(type + " ");
+        }
+        System.out.println();
 
-        // 2. Initializing List<GameObject> entities for iterative updates
+        System.out.print("Available Bullet Types: ");
+        for (BulletType type : BulletType.values()) {
+            System.out.print(type + " ");
+        }
+        System.out.println();
+
         List<GameObject> entities = new ArrayList<>();
-        Player p = new Player(100, 100, "Reimu Hakurei", 100, 15, 3);
-        Fairy f = new Fairy(100, 114, "Stage 1 Fairy", 20);     // Placed at (100, 114) -> Overlaps player core hitbox!
-        Boss b = new Boss(200, 200, "Cirno", 150);
-        Item item = new Item(300, 300, ItemType.POWER);
+        Player player3 = new Player(100, 100, "Reimu Hakurei", 100, 15, 3);
+        Fairy fairy3 = new Fairy(100, 100, "Stage 1 Fairy", 20);
+        Boss boss3 = new Boss(200, 200, "Cirno", 150);
+        Item item3 = new Item(300, 300, ItemType.POWER);
 
-        entities.add(p);
-        entities.add(f);
-        entities.add(b);
-        entities.add(item);
+        entities.add(fairy3);
+        entities.add(boss3);
+        entities.add(item3);
 
         System.out.println("\n--- Testing Iterative Update on List<GameObject> entities ---");
-        System.out.println("Initial Item Y: " + item.getY());
+        System.out.println("Initial Item Y: " + item3.getY());
         for (GameObject entity : entities) {
             entity.update(0.5f);
         }
-        System.out.println("Item Y after entity.update(0.5s): " + item.getY());
+        System.out.println("Item Y after entity.update(0.5s): " + item3.getY());
 
         System.out.println("\n--- Testing Polymorphic Collision Information ---");
-
-        // Test 1: Player at (100, 100) collides with Fairy at (100, 114)
-        System.out.println("Simulating collision at (100, 100) (Fairy position):");
-        if (p.getCoreHitbox().overlaps(f.getCoreHitbox())) {
-            p.onCollision(f);
-        }
-
-        // Test 2: Move player to Boss at (208, 208)
-        p.setX(208);
-        p.setY(208);
-        System.out.println("Moving player to (200, 200) (Boss position):");
-        if (p.getCoreHitbox().overlaps(b.getCoreHitbox())) {
-            p.onCollision(b);
-        }
-
-        // Test 3: Move player to Item position at (290, item.getY())
-        p.setX(290);
-        p.setY(item.getY());
-        System.out.println("Moving player to (300, " + item.getY() + ") (Item current position):");
-        if (p.getGrazeHitbox().overlaps(item.getCoreHitbox())) {
-            p.onCollision(item);
+        for (GameObject entity : entities) {
+            System.out.println("Simulating collision at (" + player3.getX() + ", " + player3.getY() + ") (" + entity.getClass().getSimpleName() + " position):");
+            player3.onCollision(entity);
+            player3.setX(entity.getX());
+            player3.setY(entity.getY());
         }
 
         System.out.println("\n=== Module 3 Test Completed Successfully ===");
 
 
         // ==========================================
-        // MODULE 4: COLLECTIONS, GENERICS & ITERATOR SAFE REMOVAL
+        // MODULE 4: COLLECTIONS, GENERICS & ITERATORS
         // ==========================================
         System.out.println("\n\n=== TOUHOU OOP PRACTICUM - MODULE 4: COLLECTIONS, GENERICS & ITERATORS ===");
 
         List<GameObject> gameEntities = new ArrayList<>();
 
         Player player4 = new Player(200, 50, "Reimu Hakurei", 100, 15, 3);
-        Fairy targetFairy = new Fairy(200, 200, "Target Fairy", 20); // Placed at y=200, HP 20
+        Fairy targetFairy = new Fairy(200, 200, "Target Fairy", 20);
 
         gameEntities.add(player4);
         gameEntities.add(targetFairy);
@@ -194,7 +193,7 @@ public class Test {
 
         Player player7 = new Player(200, 50, "Reimu Hakurei", 100, 15, 3);
 
-        Fairy enemyFairy = new Fairy(200, 200, "Stage 1 Fairy", 20); // HP 20
+        Fairy enemyFairy = new Fairy(200, 200, "Stage 1 Fairy", 20);
         List<GameObject> m7Entities = new ArrayList<>();
         m7Entities.add(enemyFairy);
 
@@ -202,30 +201,25 @@ public class Test {
         System.out.println("Initial Player Pool Size: " + bulletManager.getPlayerPoolSize());
         System.out.println("Initial Active Player Bullets: " + bulletManager.getActivePlayerBullets().size());
 
-        // Direct Object Pool Shooting
         player7.shootBullet(bulletManager);
         System.out.println("Active Player Bullets after 1st shoot: " + bulletManager.getActivePlayerBullets().size());
 
-        // Update bullets movement (y=50+48 -> 98, moves upwards to y=200 over 0.25s)
         bulletManager.update(0.26f, 640, 480);
 
         System.out.println("\n--- Testing Mediator Pattern Collision Resolution ---");
         referee.resolveCollisions(player7, m7Entities, bulletManager);
 
-        // Cleanup offscreen / destroyed bullets back into pool
         bulletManager.update(0.01f, 640, 480);
 
         System.out.println("\n--- Object Pool Recycling Check ---");
         System.out.println("Active Player Bullets after hit & recycling: " + bulletManager.getActivePlayerBullets().size());
         System.out.println("Recycled Player Pool Size: " + bulletManager.getPlayerPoolSize());
 
-        // Shooting again re-uses pooled bullet!
         player7.shootBullet(bulletManager);
         System.out.println("Active Player Bullets after 2nd shoot (Re-used pooled instance): " + bulletManager.getActivePlayerBullets().size());
         System.out.println("Player Pool Size after re-using: " + bulletManager.getPlayerPoolSize());
 
         System.out.println("\n--- Testing Graze vs Core Hitbox Detection ---");
-        // Spawn 16x16 enemy bullet at (190, 50) -> Overlaps Graze Hitbox (x: 200..232, y: 50..98), misses Core Hitbox (x: 212..220, y: 70..78)
         Bullet enemyBullet = bulletManager.spawnEnemyBullet(190, 50, 0, 0, 15);
         long scoreBeforeGraze = player7.getScore();
         referee.resolveCollisions(player7, m7Entities, bulletManager);
@@ -252,23 +246,18 @@ public class Test {
         System.out.println("HUD Received Initial Graze: " + hud.getGrazeCount());
 
         System.out.println("\n--- Testing Command Pattern Execution ---");
-
-        // 1. Move Command
         Command moveUp = new MoveCommand(0, 0.5f);
         moveUp.execute(player8, bManager8);
         System.out.println("Player position after MoveCommand: (" + player8.getX() + ", " + player8.getY() + ")");
 
-        // 2. Focus Command
         Command focusOn = new FocusCommand(true);
         focusOn.execute(player8, bManager8);
         System.out.println("Player Focus Mode Enabled: " + player8.isFocused());
 
-        // 3. Shoot Command
         Command shoot = new ShootCommand();
         shoot.execute(player8, bManager8);
         System.out.println("Active Player Bullets after ShootCommand: " + bManager8.getActivePlayerBullets().size());
 
-        // 4. Bomb / Spell Card Command (Screen Clearing)
         bManager8.spawnEnemyBullet(200, 300, 0, -100, 15);
         bManager8.spawnEnemyBullet(250, 350, 0, -100, 15);
         System.out.println("Active Enemy Bullets before Bomb: " + bManager8.getActiveEnemyBullets().size());
@@ -288,6 +277,61 @@ public class Test {
         System.out.println("HUD Received Updated Score: " + hud.getScore());
 
         System.out.println("\n=== Module 8 Test Completed Successfully ===");
+
+
+        // ==========================================
+        // MODULE 9: STRATEGY PATTERN & DEPENDENCY INJECTION
+        // ==========================================
+        System.out.println("\n\n=== TOUHOU OOP PRACTICUM - MODULE 9: STRATEGY PATTERN & DEPENDENCY INJECTION ===");
+
+        EntityShooter shooterPlayer = new Player(200, 50, "Reimu Hakurei", 100, 15, 3);
+        EntityShooter shooterBoss = new Boss("Cirno", 150);
+        BulletManager bManager9 = new BulletManager();
+
+        System.out.println("\n--- Testing EntityShooter Base Class Hierarchy ---");
+        System.out.println("Player is instance of EntityShooter: " + (shooterPlayer instanceof EntityShooter));
+        System.out.println("Boss is instance of EntityShooter:   " + (shooterBoss instanceof EntityShooter));
+
+        System.out.println("\n--- Testing Runtime Dependency Injection Strategy Swapping ---");
+        shooterBoss.setShootingPattern(new RingShot(200f, 8, 15));
+        shooterBoss.shootBullet(bManager9);
+        System.out.println("Active Enemy Bullets after RingShot: " + bManager9.getActiveEnemyBullets().size());
+
+        bManager9.clearEnemyBullets();
+
+        shooterBoss.setShootingPattern(new SpreadShot(200f, 3, 30f));
+        shooterBoss.shootBullet(bManager9);
+        System.out.println("Active Enemy Bullets after SpreadShot: " + bManager9.getActiveEnemyBullets().size());
+
+        System.out.println("\n--- Testing Entity Movement Patterns ---");
+        shooterBoss.setMovementPattern(new LinearEntityMovement(50f, -20f));
+        float bossInitialX = shooterBoss.getX();
+        float bossInitialY = shooterBoss.getY();
+        shooterBoss.update(1.0f);
+        System.out.println("Boss Position after 1s LinearEntityMovement: (" + shooterBoss.getX() + ", " + shooterBoss.getY() + ")");
+        System.out.println("Position updated correctly: " + (shooterBoss.getX() == bossInitialX + 50f && shooterBoss.getY() == bossInitialY - 20f));
+
+        shooterBoss.setMovementPattern(new ZigzagEntityMovement(-30f, 5f, 50f));
+        shooterBoss.update(0.5f);
+        System.out.println("Boss Position after 0.5s ZigzagEntityMovement: (" + shooterBoss.getX() + ", " + shooterBoss.getY() + ")");
+
+        shooterBoss.setMovementPattern(new TargetPointMovement(200f, 400f, 100f));
+        shooterBoss.update(1.0f);
+        System.out.println("Boss Position after 1s TargetPointMovement towards (200, 400): (" + shooterBoss.getX() + ", " + shooterBoss.getY() + ")");
+
+        System.out.println("\n--- Testing Bullet Movement Trajectory Strategies ---");
+        Bullet sineBullet = new Bullet(200, 200, 200f, BulletType.DANMAKU, 10);
+        sineBullet.setMovementPattern(new SineWaveBulletMovement(5f, 40f));
+        float initialSineX = sineBullet.getX();
+        sineBullet.update(0.5f);
+        System.out.println("Bullet X after SineWaveBulletMovement: " + sineBullet.getX() + " (oscillated off base line)");
+
+        Bullet homingBullet = new Bullet(100, 100, 200f, BulletType.AMULET, 10);
+        homingBullet.setMovementPattern(new HomingBulletMovement(shooterBoss, 90f));
+        homingBullet.update(0.5f);
+        System.out.println("Homing Bullet Angle steered toward Boss: " + homingBullet.getAngle() + "°");
+
+        System.out.println("\n=== Module 9 Test Completed Successfully ===");
     }
 
     // Non-static (Instance) Generic Method with Bounded Type Parameter <T extends GameObject>
