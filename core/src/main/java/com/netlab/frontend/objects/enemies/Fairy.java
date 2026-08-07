@@ -1,8 +1,8 @@
 package com.netlab.frontend.objects.enemies;
 
 import com.badlogic.gdx.graphics.Color;
-import com.netlab.frontend.objects.patterns.shooting.LinearShot;
-import com.netlab.frontend.objects.patterns.entity.ZigzagEntityMovement;
+import com.netlab.frontend.objects.patterns.shootingStrategy.LinearShot;
+import com.netlab.frontend.objects.patterns.entityStrategy.ZigzagEntityMovement;
 
 public class Fairy extends Enemy {
     public Fairy(String name, int hp) {

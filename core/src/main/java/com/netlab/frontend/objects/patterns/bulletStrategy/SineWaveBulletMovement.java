@@ -1,4 +1,4 @@
-package com.netlab.frontend.objects.patterns.bullet;
+package com.netlab.frontend.objects.patterns.bulletStrategy;
 
 import com.netlab.frontend.objects.bullets.Bullet;
 
@@ -19,7 +19,7 @@ public class SineWaveBulletMovement implements BulletMovementPattern {
             float rad = (float) Math.toRadians(bullet.getAngle());
             float baseDx = (float) Math.cos(rad) * bullet.getSpeed() * delta;
             float baseDy = (float) Math.sin(rad) * bullet.getSpeed() * delta;
-            
+
             // Perpendicular sine wave oscillation offset
             float perpRad = rad + (float) (Math.PI / 2);
             float waveOffset = (float) Math.sin(time * frequency) * amplitude * delta;

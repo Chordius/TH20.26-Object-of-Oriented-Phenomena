@@ -1,8 +1,8 @@
 package com.netlab.frontend.objects.enemies;
 
 import com.badlogic.gdx.graphics.Color;
-import com.netlab.frontend.objects.patterns.shooting.SpreadShot;
-import com.netlab.frontend.objects.patterns.entity.FixedMovement;
+import com.netlab.frontend.objects.patterns.shootingStrategy.SpreadShot;
+import com.netlab.frontend.objects.patterns.entityStrategy.FixedMovement;
 
 public class Boss extends Enemy {
     public Boss(String name, int hp) {

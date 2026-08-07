@@ -7,21 +7,16 @@ import com.netlab.frontend.objects.Player;
 import com.netlab.frontend.objects.bullets.Bullet;
 import com.netlab.frontend.objects.bullets.BulletType;
 import com.netlab.frontend.objects.enemies.Boss;
-import com.netlab.frontend.objects.enemies.Enemy;
 import com.netlab.frontend.objects.enemies.Fairy;
 import com.netlab.frontend.objects.items.Item;
 import com.netlab.frontend.objects.items.ItemType;
-import com.netlab.frontend.objects.patterns.ShootingPattern;
-import com.netlab.frontend.objects.patterns.shooting.SpreadShot;
-import com.netlab.frontend.objects.patterns.shooting.LinearShot;
-import com.netlab.frontend.objects.patterns.shooting.RingShot;
-import com.netlab.frontend.objects.patterns.bullet.LinearBulletMovement;
-import com.netlab.frontend.objects.patterns.bullet.SineWaveBulletMovement;
-import com.netlab.frontend.objects.patterns.bullet.HomingBulletMovement;
-import com.netlab.frontend.objects.patterns.entity.FixedMovement;
-import com.netlab.frontend.objects.patterns.entity.LinearEntityMovement;
-import com.netlab.frontend.objects.patterns.entity.TargetPointMovement;
-import com.netlab.frontend.objects.patterns.entity.ZigzagEntityMovement;
+import com.netlab.frontend.objects.patterns.shootingStrategy.SpreadShot;
+import com.netlab.frontend.objects.patterns.shootingStrategy.RingShot;
+import com.netlab.frontend.objects.patterns.bulletStrategy.SineWaveBulletMovement;
+import com.netlab.frontend.objects.patterns.bulletStrategy.HomingBulletMovement;
+import com.netlab.frontend.objects.patterns.entityStrategy.LinearEntityMovement;
+import com.netlab.frontend.objects.patterns.entityStrategy.TargetPointMovement;
+import com.netlab.frontend.objects.patterns.entityStrategy.ZigzagEntityMovement;
 import com.netlab.frontend.systems.BulletManager;
 import com.netlab.frontend.systems.CollisionReferee;
 import com.netlab.frontend.ui.GameHUD;
@@ -302,6 +297,23 @@ public class Test {
         shooterBoss.setShootingPattern(new SpreadShot(200f, 3, 30f));
         shooterBoss.shootBullet(bManager9);
         System.out.println("Active Enemy Bullets after SpreadShot: " + bManager9.getActiveEnemyBullets().size());
+
+        System.out.println("\n--- Testing Player Power-Based Dynamic Strategy Swapping ---");
+        Player reimu = new Player(200, 50, "Reimu Hakurei", 100, 10, 3);
+        reimu.setTargetEnemy(shooterBoss);
+        System.out.println("Player Strategy at Power 10:  " + reimu.getShootingPattern().getClass().getSimpleName());
+
+        reimu.setPower(20);
+        System.out.println("Player Strategy at Power 20:  " + reimu.getShootingPattern().getClass().getSimpleName());
+
+        reimu.setPower(40);
+        System.out.println("Player Strategy at Power 40:  " + reimu.getShootingPattern().getClass().getSimpleName());
+
+        reimu.setPower(80);
+        System.out.println("Player Strategy at Power 80:  " + reimu.getShootingPattern().getClass().getSimpleName() + " (with Homing Needles)");
+
+        reimu.setPower(128);
+        System.out.println("Player Strategy at Power 128: " + reimu.getShootingPattern().getClass().getSimpleName() + " (MAX Power)");
 
         System.out.println("\n--- Testing Entity Movement Patterns ---");
         shooterBoss.setMovementPattern(new LinearEntityMovement(50f, -20f));

@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.netlab.frontend.objects.EntityShooter;
 import com.netlab.frontend.objects.Player;
 import com.netlab.frontend.objects.patterns.ShootingPattern;
-import com.netlab.frontend.objects.patterns.entity.EntityMovementPattern;
+import com.netlab.frontend.objects.patterns.entityStrategy.EntityMovementPattern;
 
 public class Enemy extends EntityShooter {
     protected String name;

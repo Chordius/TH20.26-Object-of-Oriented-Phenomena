@@ -1,4 +1,4 @@
-package com.netlab.frontend.objects.patterns.entity;
+package com.netlab.frontend.objects.patterns.entityStrategy;
 
 import com.netlab.frontend.objects.GameObject;
 
@@ -20,11 +20,13 @@ public class TargetPointMovement implements EntityMovementPattern {
         float currentX = entity.getX();
         float currentY = entity.getY();
 
-        float dx = targetX - currentX;
-        float dy = targetY - currentY;
+        float dx = targetX - entity.getX();
+        float dy = targetY - entity.getY();
         float distance = (float) Math.sqrt(dx * dx + dy * dy);
 
-        float step = speed * delta;
+        // TODO: Step is the amount of steps the user have to take before arriving at the targetX or targetY
+        // TODO: If the destination requires less than 1 step, make sure the player immediately arrives at it instead of taking too much step.
+        float step = delta * speed;
         if (distance <= step || distance < 1f) {
             entity.setX(targetX);
             entity.setY(targetY);

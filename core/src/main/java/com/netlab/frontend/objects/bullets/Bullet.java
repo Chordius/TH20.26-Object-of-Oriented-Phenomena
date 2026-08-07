@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.netlab.frontend.objects.Collidable;
 import com.netlab.frontend.objects.GameObject;
 import com.netlab.frontend.objects.enemies.Enemy;
-import com.netlab.frontend.objects.patterns.bullet.BulletMovementPattern;
+import com.netlab.frontend.objects.patterns.bulletStrategy.BulletMovementPattern;
 
 public class Bullet extends GameObject {
     private BulletType bulletType;

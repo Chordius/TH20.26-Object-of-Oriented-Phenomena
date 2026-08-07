@@ -2,7 +2,7 @@ package com.netlab.frontend.objects;
 
 import com.badlogic.gdx.graphics.Color;
 import com.netlab.frontend.objects.patterns.ShootingPattern;
-import com.netlab.frontend.objects.patterns.entity.EntityMovementPattern;
+import com.netlab.frontend.objects.patterns.entityStrategy.EntityMovementPattern;
 import com.netlab.frontend.systems.BulletManager;
 
 public abstract class EntityShooter extends GameObject {

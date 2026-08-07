@@ -1,4 +1,4 @@
-package com.netlab.frontend.objects.patterns.shooting;
+package com.netlab.frontend.objects.patterns.shootingStrategy;
 
 import com.netlab.frontend.objects.patterns.ShootingPattern;
 import com.netlab.frontend.systems.BulletManager;

@@ -22,19 +22,19 @@ Practikans (students) are expected to implement and refactor the following core 
 
 ### 2. Strategy Patterns (`com.netlab.frontend.objects.patterns`)
 
-#### A. **Shooting Strategies** (`com.netlab.frontend.objects.patterns.shooting`)
+#### A. **Shooting Strategies** (`com.netlab.frontend.objects.patterns.shootingStrategy`)
 - **`ShootingPattern`**: `execute(originX, originY, bulletManager, isPlayer)`
   - `LinearShot`: Fires straight parallel bullet streams.
   - `SpreadShot`: Fires angled fan/cone spread bullet patterns.
   - `RingShot`: Fires a 360-degree radial ring bullet burst.
 
-#### B. **Bullet Movement Strategies** (`com.netlab.frontend.objects.patterns.bullet`)
+#### B. **Bullet Movement Strategies** (`com.netlab.frontend.objects.patterns.bulletStrategy`)
 - **`BulletMovementPattern`**: `move(bullet, delta)`
   - `LinearBulletMovement`: Standard constant velocity straight movement.
   - `SineWaveBulletMovement`: Oscillating sine wave bullet trajectory.
   - `HomingBulletMovement`: Steers bullet toward target entity.
 
-#### C. **Entity Movement Strategies** (`com.netlab.frontend.objects.patterns.entity`)
+#### C. **Entity Movement Strategies** (`com.netlab.frontend.objects.patterns.entityStrategy`)
 - **`EntityMovementPattern`**: `move(entity, delta)`
   - `FixedMovement`: Stationary/idle stance.
   - `LinearEntityMovement`: Straight velocity vector movement.

@@ -1,4 +1,4 @@
-package com.netlab.frontend.objects.patterns.bullet;
+package com.netlab.frontend.objects.patterns.bulletStrategy;
 
 import com.netlab.frontend.objects.bullets.Bullet;
 

@@ -1,4 +1,4 @@
-package com.netlab.frontend.objects.patterns.entity;
+package com.netlab.frontend.objects.patterns.entityStrategy;
 
 import com.netlab.frontend.objects.GameObject;
 

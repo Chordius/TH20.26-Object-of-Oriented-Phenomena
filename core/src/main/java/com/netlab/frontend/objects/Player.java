@@ -1,7 +1,5 @@
 package com.netlab.frontend.objects;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -15,9 +13,12 @@ import com.netlab.frontend.objects.enemies.Fairy;
 import com.netlab.frontend.objects.items.Item;
 import com.netlab.frontend.objects.items.ItemType;
 import com.netlab.frontend.objects.patterns.ShootingPattern;
-import com.netlab.frontend.objects.patterns.shooting.LinearShot;
-import com.netlab.frontend.objects.patterns.entity.EntityMovementPattern;
-import com.netlab.frontend.objects.patterns.entity.FixedMovement;
+import com.netlab.frontend.objects.patterns.shootingStrategy.LinearShot;
+import com.netlab.frontend.objects.patterns.shootingStrategy.SpreadShot;
+import com.netlab.frontend.objects.patterns.shootingStrategy.HomingNeedleShot;
+import com.netlab.frontend.objects.patterns.shootingStrategy.CompositeShootingPattern;
+import com.netlab.frontend.objects.patterns.entityStrategy.EntityMovementPattern;
+import com.netlab.frontend.objects.patterns.entityStrategy.FixedMovement;
 import com.netlab.frontend.systems.AssetManager;
 import com.netlab.frontend.systems.BulletManager;
 
@@ -37,6 +38,7 @@ public class Player extends EntityShooter {
     private float shootCooldown = 0.1f; // Continuous fire rate: 10 shots per second when holding Z
 
     private int currentDir = 0; // -1: Left, 0: Idle, 1: Right
+    private GameObject targetEnemy;
 
     // Observer Pattern Subject
     private List<GameObserver> observers = new ArrayList<>();
@@ -48,8 +50,8 @@ public class Player extends EntityShooter {
         this.power = power;
         this.spellCards = spellCards;
         this.score = 0;
-        setShootingPattern(new LinearShot(400f, 25));
         setMovementPattern(new FixedMovement());
+        updatePowerStrategy();
     }
 
     public Player(float x, float y, String name, int hp, int power, int spellCards) {
@@ -59,8 +61,8 @@ public class Player extends EntityShooter {
         this.power = power;
         this.spellCards = spellCards;
         this.score = 0;
-        setShootingPattern(new LinearShot(400f, 25));
         setMovementPattern(new FixedMovement());
+        updatePowerStrategy();
     }
 
     public Player(float x, float y, String name, int hp, int power, int spellCards,
@@ -71,6 +73,43 @@ public class Player extends EntityShooter {
         this.power = power;
         this.spellCards = spellCards;
         this.score = 0;
+        if (shootingPattern == null) {
+            updatePowerStrategy();
+        }
+    }
+
+    public void setTargetEnemy(GameObject targetEnemy) {
+        this.targetEnemy = targetEnemy;
+        updatePowerStrategy();
+    }
+
+    // Dynamic Strategy Swapping based on Player Power Level & Focus Mode (Shift key)
+    public void updatePowerStrategy() {
+        float spreadAngle = focused ? 4f : 18f;     // Narrow stream in Focus Mode (4° vs 18°)
+        float dualSpreadAngle = focused ? 3f : 12f; // Narrow stream in Focus Mode (3° vs 12°)
+
+        if (power < 16) {
+            // Level 1 (0-15 Power): Single forward amulet stream
+            setShootingPattern(new LinearShot(400f, 10 + power));
+        } else if (power < 32) {
+            // Level 2 (16-31 Power): Dual forward amulet streams (Narrow in Focus Mode)
+            setShootingPattern(new SpreadShot(400f, 2, dualSpreadAngle, 10 + power));
+        } else if (power < 64) {
+            // Level 3 (32-63 Power): Triple forward amulet streams (Narrow in Focus Mode)
+            setShootingPattern(new SpreadShot(400f, 3, spreadAngle, 10 + power));
+        } else if (power < 128) {
+            // Level 4 (64-127 Power): Composite Strategy (3-Way Spread + 1 Homing Needle stream)
+            setShootingPattern(new CompositeShootingPattern(
+                new SpreadShot(400f, 3, spreadAngle, 10 + power),
+                new HomingNeedleShot(400f, 1, 10 + power, targetEnemy)
+            ));
+        } else {
+            // Level 5 MAX (128 Power): Composite Strategy (3-Way Spread + 2 Homing Needle streams)
+            setShootingPattern(new CompositeShootingPattern(
+                new SpreadShot(400f, 3, spreadAngle, 10 + power),
+                new HomingNeedleShot(400f, 2, 10 + power, targetEnemy)
+            ));
+        }
     }
 
     // Touhou Hitboxes: Graze Hitbox is full sprite size (32x48), Core Hitbox is small centered dot (8x8)
@@ -270,6 +309,7 @@ public class Player extends EntityShooter {
             switch (type) {
                 case POWER -> {
                     this.power += type.getPowerBonus();
+                    updatePowerStrategy(); // Dynamic Strategy Swap on Power Increase!
                     notifyPowerChanged();
                     addScore(item.getScoreValue());
                     System.out.println(name + " collected POWER item! Power increased to " + power);
@@ -324,7 +364,12 @@ public class Player extends EntityShooter {
     }
 
     public boolean isFocused() { return focused; }
-    public void setFocused(boolean focused) { this.focused = focused; }
+    public void setFocused(boolean focused) {
+        if (this.focused != focused) {
+            this.focused = focused;
+            updatePowerStrategy(); // Dynamic Strategy Swap: Narrows bullet stream in Focus Mode!
+        }
+    }
 
     public int getGrazeCount() { return grazeCount; }
 
@@ -341,6 +386,7 @@ public class Player extends EntityShooter {
     public int getPower() { return power; }
     public void setPower(int power) {
         this.power = power;
+        updatePowerStrategy(); // Dynamic Strategy Swap on Power Setter!
         notifyPowerChanged();
     }
 
