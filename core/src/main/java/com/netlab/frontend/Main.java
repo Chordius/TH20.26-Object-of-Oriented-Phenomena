@@ -22,7 +22,6 @@ import java.util.List;
 
 public class Main extends ApplicationAdapter {
     private SpriteBatch batch;
-
     private Player player;
     private Fairy fairy;
     private Boss boss;
@@ -53,8 +52,8 @@ public class Main extends ApplicationAdapter {
         // Col 0: Small Power (P), Col 1: Point Item (点), Col 3: Bomb Item (B), Col 5: 1UP Item (1up)
         assets.registerRegionFromSheet("item_power", "items.png", 16, 16, 0, 0);
         assets.registerRegionFromSheet("item_point", "items.png", 16, 16, 0, 1);
-        assets.registerRegionFromSheet("item_bomb", "items.png", 16, 16, 0, 3);
-        assets.registerRegionFromSheet("item_life", "items.png", 16, 16, 0, 5);
+        assets.registerRegionFromSheet("item_bomb",  "items.png", 16, 16, 0, 3);
+        assets.registerRegionFromSheet("item_life",  "items.png", 16, 16, 0, 5);
 
         // 2. Instantiate entities via Factory Pattern (EntityFactory)
         player = EntityFactory.createPlayer(280, 40, "Reimu Hakurei", 100, 15, 3);
@@ -79,12 +78,8 @@ public class Main extends ApplicationAdapter {
             player.shootBullet(bulletManager);
         }
 
-        // 2. Periodic Boss Bullet Shooting (Every 1.5s via Pre-made Boss SpreadShot Strategy)
-        enemyShootTimer += delta;
-        if (enemyShootTimer >= 1.5f) {
-            boss.shootBullet(bulletManager);
-            enemyShootTimer = 0f;
-        }
+        // 2. Periodic Enemy Action Scheduler (Foreshadows Module 9 strategy updates)
+        updateEnemyScheduler(delta);
 
         // 3. Generic update & safe removal of standard entities
         updateAndClean(entities, delta, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -107,6 +102,15 @@ public class Main extends ApplicationAdapter {
         }
         bulletManager.render(batch);
         batch.end();
+    }
+
+    // Periodic Enemy Action Scheduler (Foreshadows Module 9 dynamic strategy updates)
+    private void updateEnemyScheduler(float delta) {
+        enemyShootTimer += delta;
+        if (enemyShootTimer >= 1.5f) {
+            boss.shootBullet(bulletManager);
+            enemyShootTimer = 0f;
+        }
     }
 
     // Generic Instance Method with Bounded Type Parameter <T extends GameObject>
