@@ -11,9 +11,9 @@ import java.util.Map;
 public class AssetManager {
     private static AssetManager instance;
 
-    private Map<String, Texture> textures = new HashMap<>();
-    private Map<String, TextureRegion> regions = new HashMap<>();
-    private Map<String, Animation<TextureRegion>> animations = new HashMap<>();
+    private Map<String, Texture> textureMap = new HashMap<>();
+    private Map<String, TextureRegion> textureRegionMap = new HashMap<>();
+    private Map<String, Animation<TextureRegion>> animationMap = new HashMap<>();
 
     private AssetManager() {}
 
@@ -51,60 +51,92 @@ public class AssetManager {
         registerRegionFromSheet("item_life",  "items.png", 16, 16, 0, 5);
     }
 
+    public TextureRegion getTextureRegion(String key) {
+        return textureRegionMap.get(key);
+    }
+
+    public TextureRegion getRegion(String key) {
+        return getTextureRegion(key);
+    }
+
+    public Animation<TextureRegion> getAnimation(String key) {
+        return animationMap.get(key);
+    }
+
     public Texture loadTexture(String filename) {
-        if (!textures.containsKey(filename)) {
+        if (!textureMap.containsKey(filename)) {
             if (Gdx.files != null && Gdx.files.internal(filename).exists()) {
-                textures.put(filename, new Texture(Gdx.files.internal(filename)));
+                textureMap.put(filename, new Texture(Gdx.files.internal(filename)));
             } else {
                 return null;
             }
         }
-        return textures.get(filename);
+        return textureMap.get(filename);
     }
 
-    public void registerRegionFromSheet(String name, String filename, int frameW, int frameH, int row, int col) {
-        Texture sheet = loadTexture(filename);
-        if (sheet != null) {
-            TextureRegion region = new TextureRegion(sheet, col * frameW, row * frameH, frameW, frameH);
-            regions.put(name, region);
+    public void registerRegion(String key, TextureRegion region) {
+        textureRegionMap.put(key, region);
+    }
+
+    public void registerRegionFromSheet(String key, String filename, int tileWidth, int tileHeight, int row, int col) {
+        Texture tex = loadTexture(filename);
+        if (tex != null) {
+            TextureRegion[][] grid = TextureRegion.split(tex, tileWidth, tileHeight);
+            textureRegionMap.put(key, grid[row][col]);
         }
     }
 
-    public void registerAnimationFromSheet(String name, String filename, int frameW, int frameH, int row, int frameCount, float frameDuration) {
-        registerAnimationFromSheet(name, filename, frameW, frameH, row, 0, frameCount, frameDuration, Animation.PlayMode.LOOP);
+    public void registerAnimationFromSheet(String key, String filename, int tileWidth, int tileHeight, int row, int numFrames, float frameDuration) {
+        registerAnimationFromSheet(key, filename, tileWidth, tileHeight, row, 0, numFrames, frameDuration, Animation.PlayMode.LOOP);
     }
 
-    public void registerAnimationFromSheet(String name, String filename, int frameW, int frameH, int row, int startCol, int frameCount, float frameDuration, Animation.PlayMode playMode) {
-        Texture sheet = loadTexture(filename);
-        if (sheet != null) {
-            TextureRegion[] frames = new TextureRegion[frameCount];
-            for (int i = 0; i < frameCount; i++) {
-                frames[i] = new TextureRegion(sheet, (startCol + i) * frameW, row * frameH, frameW, frameH);
+    public void registerAnimationFromSheet(String key, String filename, int tileWidth, int tileHeight, int row, int startCol, int numFrames, float frameDuration, Animation.PlayMode playMode) {
+        Texture tex = loadTexture(filename);
+        if (tex != null) {
+            TextureRegion[][] grid = TextureRegion.split(tex, tileWidth, tileHeight);
+
+            TextureRegion[] frames = new TextureRegion[numFrames];
+            for (int i = 0; i < numFrames; i++) {
+                frames[i] = grid[row][startCol + i];
             }
+
             Animation<TextureRegion> anim = new Animation<>(frameDuration, frames);
             anim.setPlayMode(playMode);
-            animations.put(name, anim);
+
+            animationMap.put(key, anim);
+            textureRegionMap.put(key, frames[0]);
         }
     }
 
-    public TextureRegion getRegion(String name) {
-        return regions.get(name);
+    public void registerFlippedAnimationFromSheet(String key, String filename, int tileWidth, int tileHeight, int row, int numFrames, float frameDuration, boolean flipX, boolean flipY) {
+        registerFlippedAnimationFromSheet(key, filename, tileWidth, tileHeight, row, 0, numFrames, frameDuration, Animation.PlayMode.LOOP, flipX, flipY);
     }
 
-    public TextureRegion getTextureRegion(String name) {
-        return getRegion(name);
-    }
+    public void registerFlippedAnimationFromSheet(String key, String filename, int tileWidth, int tileHeight, int row, int startCol, int numFrames, float frameDuration, Animation.PlayMode playMode, boolean flipX, boolean flipY) {
+        Texture tex = loadTexture(filename);
+        if (tex != null) {
+            TextureRegion[][] grid = TextureRegion.split(tex, tileWidth, tileHeight);
 
-    public Animation<TextureRegion> getAnimation(String name) {
-        return animations.get(name);
+            TextureRegion[] frames = new TextureRegion[numFrames];
+            for (int i = 0; i < numFrames; i++) {
+                frames[i] = new TextureRegion(grid[row][startCol + i]);
+                frames[i].flip(flipX, flipY);
+            }
+
+            Animation<TextureRegion> anim = new Animation<>(frameDuration, frames);
+            anim.setPlayMode(playMode);
+
+            animationMap.put(key, anim);
+            textureRegionMap.put(key, frames[0]);
+        }
     }
 
     public void dispose() {
-        for (Texture texture : textures.values()) {
-            if (texture != null) texture.dispose();
+        for (Texture tex : textureMap.values()) {
+            if (tex != null) tex.dispose();
         }
-        textures.clear();
-        regions.clear();
-        animations.clear();
+        textureMap.clear();
+        textureRegionMap.clear();
+        animationMap.clear();
     }
 }
