@@ -141,7 +141,7 @@ public class Main extends ApplicationAdapter {
         batch.end();
 
         // 8. Render UI Frame Lines & Focus Mode Core Hurtbox Indicator (Drawn ON TOP of sprites!)
-        gameHUD.renderFrame();
+        gameHUD.renderBackground();
         player.renderFocusIndicator(gameHUD.getShapeRenderer());
     }
 
