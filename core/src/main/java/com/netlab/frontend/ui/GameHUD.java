@@ -8,23 +8,20 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.netlab.frontend.observers.GameObserver;
 
 public class GameHUD implements GameObserver {
+    private long score;
+    private int hp;
+    private int spellCards;
+    private int power;
+    private int grazeCount;
+
     private BitmapFont font;
     private ShapeRenderer shapeRenderer;
 
-    private long score = 0;
-    private int hp = 100;
-    private int spellCards = 3;
-    private int power = 15;
-    private int grazeCount = 0;
-
     public GameHUD() {
-        if (Gdx.files != null) {
-            font = new BitmapFont(); // LibGDX default font
-            font.setColor(Color.WHITE);
-            shapeRenderer = new ShapeRenderer();
-        }
+        // Lazy initialized during rendering to safely support headless CLI tests
     }
 
+    // Observer Pattern Updates
     @Override
     public void onScoreChanged(long newScore) {
         this.score = newScore;
@@ -50,12 +47,11 @@ public class GameHUD implements GameObserver {
         this.grazeCount = currentGraze;
     }
 
-    public void renderFrame() {
-        if (shapeRenderer == null && Gdx.files != null) {
-            shapeRenderer = new ShapeRenderer();
-        }
-
-        if (shapeRenderer != null) {
+    public void renderBackground() {
+        if (Gdx.graphics != null && Gdx.gl != null) {
+            if (shapeRenderer == null) {
+                shapeRenderer = new ShapeRenderer();
+            }
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             shapeRenderer.setColor(Color.LIGHT_GRAY);
             // Playfield boundary box: X: 32..416, Y: 16..560 (Width 384, Height 544)
@@ -66,6 +62,10 @@ public class GameHUD implements GameObserver {
             shapeRenderer.rect(432, 16, 336, 544);
             shapeRenderer.end();
         }
+    }
+
+    public void renderFrame() {
+        renderBackground();
     }
 
     public void render(SpriteBatch batch) {
@@ -79,7 +79,7 @@ public class GameHUD implements GameObserver {
                 font.draw(batch, "=== TOUHOU PRACTICUM ===", 448, 540);
                 font.draw(batch, "HighScore: " + String.format("%09d", Math.max(score, 999990L)), 448, 500);
                 font.draw(batch, "Score:     " + String.format("%09d", score), 448, 470);
-                font.draw(batch, "Player HP: " + hp + "%", 448, 430);
+                font.draw(batch, "Player HP:  " + "★ ".repeat(Math.max(0, Math.min(8, hp))), 448, 430);
                 font.draw(batch, "SpellCards: " + "★ ".repeat(Math.max(0, spellCards)), 448, 390);
                 font.draw(batch, "Power:     " + power + " / 128", 448, 350);
                 font.draw(batch, "Graze:     " + grazeCount, 448, 310);
@@ -98,7 +98,11 @@ public class GameHUD implements GameObserver {
         if (shapeRenderer != null) shapeRenderer.dispose();
     }
 
-    public ShapeRenderer getShapeRenderer() { return shapeRenderer; }
+    public ShapeRenderer getShapeRenderer() {
+        return shapeRenderer;
+    }
+
+    // Encapsulation getters for Testing
     public long getScore() { return score; }
     public int getHp() { return hp; }
     public int getSpellCards() { return spellCards; }
