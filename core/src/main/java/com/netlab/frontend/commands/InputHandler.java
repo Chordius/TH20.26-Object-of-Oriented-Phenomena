@@ -2,12 +2,15 @@ package com.netlab.frontend.commands;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.netlab.frontend.objects.GameObject;
 import com.netlab.frontend.objects.Player;
 import com.netlab.frontend.systems.BulletManager;
 
+import java.util.List;
+
 public class InputHandler {
 
-    public void handleInput(Player player, BulletManager bulletManager, float delta) {
+    public void handleInput(Player player, BulletManager bulletManager, List<GameObject> entities, float delta) {
         if (player == null || player.isDestroyed()) return;
 
         // 1. Focus Mode Toggle (Shift key)
@@ -40,8 +43,12 @@ public class InputHandler {
 
         // 4. Bomb / Spell Card Command (X key - tap once)
         if (Gdx.input != null && Gdx.input.isKeyJustPressed(Input.Keys.X)) {
-            Command bombCommand = new BombCommand();
+            Command bombCommand = new BombCommand(entities);
             bombCommand.execute(player, bulletManager);
         }
+    }
+
+    public void handleInput(Player player, BulletManager bulletManager, float delta) {
+        handleInput(player, bulletManager, null, delta);
     }
 }
