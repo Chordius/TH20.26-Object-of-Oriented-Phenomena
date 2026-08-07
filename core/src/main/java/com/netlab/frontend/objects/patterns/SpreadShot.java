@@ -6,11 +6,17 @@ public class SpreadShot implements ShootingPattern {
     private float speed;
     private int numBullets;
     private float spreadAngleDegrees;
+    private int damage;
 
     public SpreadShot(float speed, int numBullets, float spreadAngleDegrees) {
+        this(speed, numBullets, spreadAngleDegrees, 1);
+    }
+
+    public SpreadShot(float speed, int numBullets, float spreadAngleDegrees, int damage) {
         this.speed = speed;
         this.numBullets = numBullets;
         this.spreadAngleDegrees = spreadAngleDegrees;
+        this.damage = damage;
     }
 
     @Override
@@ -20,7 +26,7 @@ public class SpreadShot implements ShootingPattern {
         float startAngle = centerAngle - (spreadAngleDegrees / 2f);
         float angleStep = (numBullets > 1) ? (spreadAngleDegrees / (numBullets - 1)) : 0;
 
-        int damage = isPlayer ? 25 : 15;
+        int bulletDamage = isPlayer ? 25 : this.damage;
 
         for (int i = 0; i < numBullets; i++) {
             float angleDeg = startAngle + (i * angleStep);
@@ -30,9 +36,9 @@ public class SpreadShot implements ShootingPattern {
             float vy = (float) (speed * Math.sin(angleRad));
 
             if (isPlayer) {
-                bulletManager.spawnPlayerBullet(originX, originY, vx, vy, damage);
+                bulletManager.spawnPlayerBullet(originX, originY, vx, vy, bulletDamage);
             } else {
-                bulletManager.spawnEnemyBullet(originX, originY, vx, vy, damage);
+                bulletManager.spawnEnemyBullet(originX, originY, vx, vy, bulletDamage);
             }
         }
     }
@@ -45,4 +51,7 @@ public class SpreadShot implements ShootingPattern {
 
     public float getSpreadAngleDegrees() { return spreadAngleDegrees; }
     public void setSpreadAngleDegrees(float spreadAngleDegrees) { this.spreadAngleDegrees = spreadAngleDegrees; }
+
+    public int getDamage() { return damage; }
+    public void setDamage(int damage) { this.damage = damage; }
 }
