@@ -5,13 +5,17 @@ import com.netlab.frontend.objects.Player;
 import com.netlab.frontend.objects.bullets.Bullet;
 import com.netlab.frontend.objects.enemies.Enemy;
 import com.netlab.frontend.objects.items.Item;
+import com.netlab.frontend.objects.items.ItemType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CollisionReferee {
 
     public void resolveCollisions(Player player, List<GameObject> entities, BulletManager bulletManager) {
         if (player == null || entities == null || bulletManager == null) return;
+
+        List<GameObject> newDrops = new ArrayList<>();
 
         // 1. Mediator checks Player Bullets vs Enemies (Core Hitbox)
         for (Bullet bullet : bulletManager.getActivePlayerBullets()) {
@@ -24,6 +28,9 @@ public class CollisionReferee {
                         boolean defeated = enemy.takeDamage(bullet.getDamage());
                         if (defeated) {
                             player.addScore(enemy.getScoreValue());
+                            Item drop = EntityFactory.createItem(enemy.getX(), enemy.getY(), ItemType.POWER);
+                            newDrops.add(drop);
+                            System.out.println("[CollisionReferee] Defeated " + enemy.getName() + "! Dropped POWER item at (" + enemy.getX() + ", " + enemy.getY() + ")");
                         }
                         bullet.destroy(); // Mark bullet for recycling by BulletManager
                     }
@@ -68,5 +75,7 @@ public class CollisionReferee {
                 }
             }
         }
+
+        entities.addAll(newDrops);
     }
 }
