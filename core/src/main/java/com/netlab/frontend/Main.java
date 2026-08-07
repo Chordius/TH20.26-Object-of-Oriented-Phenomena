@@ -2,23 +2,16 @@ package com.netlab.frontend;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.netlab.frontend.commands.InputHandler;
 import com.netlab.frontend.objects.GameObject;
 import com.netlab.frontend.objects.Player;
-import com.netlab.frontend.objects.enemies.Boss;
-import com.netlab.frontend.objects.enemies.Fairy;
-import com.netlab.frontend.objects.items.Item;
-import com.netlab.frontend.objects.items.ItemType;
-import com.netlab.frontend.objects.patterns.shootingStrategy.SpreadShot;
-import com.netlab.frontend.objects.patterns.shootingStrategy.RingShot;
-import com.netlab.frontend.objects.patterns.entityStrategy.TargetPointMovement;
 import com.netlab.frontend.systems.AssetManager;
 import com.netlab.frontend.systems.BulletManager;
 import com.netlab.frontend.systems.CollisionReferee;
 import com.netlab.frontend.systems.EntityFactory;
+import com.netlab.frontend.systems.LevelWaveManager;
 import com.netlab.frontend.ui.GameHUD;
 
 import java.util.ArrayList;
@@ -28,20 +21,13 @@ import java.util.List;
 public class Main extends ApplicationAdapter {
     private SpriteBatch batch;
     private Player player;
-    private Fairy fairy;
-    private Boss boss;
-    private Item powerItem;
-    private Item pointItem;
     private List<GameObject> entities;
 
     private BulletManager bulletManager;
     private CollisionReferee collisionReferee;
+    private LevelWaveManager waveManager;
     private InputHandler inputHandler;
     private GameHUD gameHUD;
-
-    private float enemyShootTimer = 0f;
-    private float phaseTimer = 0f;
-    private int currentPhase = 0; // 0: Upper Left SpreadShot, 1: Upper Right RingShot
 
     @Override
     public void create() {
@@ -52,54 +38,16 @@ public class Main extends ApplicationAdapter {
         inputHandler = new InputHandler();
         gameHUD = new GameHUD();
 
-        // 1. Dynamic Asset Registration (AssetManager - Singleton + Flyweight)
-        AssetManager assets = AssetManager.getInstance();
+        // 1. Centralized Asset Initialization (AssetManager Singleton)
+        AssetManager.getInstance().init();
 
-        // Reimu Animations (32x48 per tile, 8 columns)
-        assets.registerAnimationFromSheet("player_idle", "player.png", 32, 48, 0, 0, 8, 0.125f, Animation.PlayMode.LOOP);
-        assets.registerAnimationFromSheet("player_left_start", "player.png", 32, 48, 1, 0, 4, 0.8f, Animation.PlayMode.NORMAL);
-        assets.registerAnimationFromSheet("player_left_loop",  "player.png", 32, 48, 1, 4, 4, 0.12f, Animation.PlayMode.LOOP);
-        assets.registerAnimationFromSheet("player_right_start", "player.png", 32, 48, 2, 0, 4, 0.8f, Animation.PlayMode.NORMAL);
-        assets.registerAnimationFromSheet("player_right_loop",  "player.png", 32, 48, 2, 4, 4, 0.12f, Animation.PlayMode.LOOP);
-
-        // Boss Cirno Animations (64x64 per tile, 4 columns)
-        assets.registerAnimationFromSheet("boss_idle", "cirno.png", 64, 64, 0, 0, 4, 0.2f, Animation.PlayMode.LOOP);
-        assets.registerAnimationFromSheet("boss_left_start", "cirno.png", 64, 64, 1, 0, 2, 0.12f, Animation.PlayMode.NORMAL);
-        assets.registerAnimationFromSheet("boss_left_loop",  "cirno.png", 64, 64, 1, 2, 2, 0.2f,  Animation.PlayMode.LOOP);
-        assets.registerAnimationFromSheet("boss_right_start", "cirno.png", 64, 64, 2, 0, 2, 0.12f, Animation.PlayMode.NORMAL);
-        assets.registerAnimationFromSheet("boss_right_loop",  "cirno.png", 64, 64, 2, 2, 2, 0.2f,  Animation.PlayMode.LOOP);
-
-        // Stage 1 Fairy & Bullets
-        assets.registerAnimationFromSheet("fairy_idle", "fairy.png", 32, 32, 1, 8, 0.125f);
-        assets.registerRegionFromSheet("bullet_amulet", "bullets_small.png", 16, 16, 6, 0);
-        assets.registerRegionFromSheet("bullet_danmaku", "bullets_small.png", 16, 16, 2, 0);
-
-        // Items (items.png 16x16 per cell):
-        assets.registerRegionFromSheet("item_power", "items.png", 16, 16, 0, 0);
-        assets.registerRegionFromSheet("item_point", "items.png", 16, 16, 0, 1);
-        assets.registerRegionFromSheet("item_bomb",  "items.png", 16, 16, 0, 3);
-        assets.registerRegionFromSheet("item_life",  "items.png", 16, 16, 0, 5);
-
-        // 2. Instantiate entities via Factory Pattern (EntityFactory)
+        // 2. Instantiate Player & Register GameHUD Observer
         player = EntityFactory.createPlayer(200, 50, "Reimu Hakurei", 8, 15, 3);
-        fairy = EntityFactory.createFairy(150, 380, "Stage 1 Fairy", 20);
-        boss = EntityFactory.createBoss(250, 400, "Cirno", 250);
-        powerItem = EntityFactory.createItem(180, 450, ItemType.POWER);
-        pointItem = EntityFactory.createItem(220, 480, ItemType.POINT);
-
-        // 3. Initial Strategy setup for Module 9
-        player.setTargetEnemy(boss);
-        boss.setMovementPattern(new TargetPointMovement(100f, 420f, 150f));
-        boss.setShootingPattern(new SpreadShot(200f, 3, 30f, 15));
-
-        // 4. Register GameHUD as Observer to Player (Observer Pattern)
         player.registerObserver(gameHUD);
-
         entities.add(player);
-        entities.add(fairy);
-        entities.add(boss);
-        entities.add(powerItem);
-        entities.add(pointItem);
+
+        // 3. Instantiate LevelWaveManager Facade (Handles enemy spawning & wave states!)
+        waveManager = new LevelWaveManager(entities, bulletManager, player);
     }
 
     @Override
@@ -109,8 +57,8 @@ public class Main extends ApplicationAdapter {
         // 1. Process Input via Command Pattern (InputHandler)
         inputHandler.handleInput(player, bulletManager, delta);
 
-        // 2. Periodic Enemy Action Scheduler (Module 9 strategy updates)
-        updateEnemyScheduler(delta);
+        // 2. Level Wave Scripting & Enemy Scheduler (LevelWaveManager Facade + State Pattern)
+        waveManager.update(delta);
 
         // 3. Generic update & safe removal of standard entities
         updateAndClean(entities, delta, 416, 560);
@@ -138,35 +86,6 @@ public class Main extends ApplicationAdapter {
         // 8. Render UI Frame Lines & Focus Mode Core Hurtbox Indicator (Drawn ON TOP of sprites!)
         gameHUD.renderBackground();
         player.renderFocusIndicator(gameHUD.getShapeRenderer());
-    }
-
-    // Periodic Enemy Action Scheduler (Module 9 strategy updates: Cirno shuffles patterns and positions every 3.5s)
-    private void updateEnemyScheduler(float delta) {
-        // 1. Periodic Boss Bullet Shooting (Every 1.5s via active ShootingPattern strategy)
-        enemyShootTimer += delta;
-        if (enemyShootTimer >= 1.5f) {
-            boss.shootBullet(bulletManager);
-            enemyShootTimer = 0f;
-        }
-
-        // 2. Dynamic Strategy Swapping (Every 3.5s Cirno shifts between Upper Left SpreadShot & Upper Right RingShot)
-        phaseTimer += delta;
-        if (phaseTimer >= 3.5f) {
-            phaseTimer = 0f;
-            currentPhase = (currentPhase + 1) % 2;
-
-            if (currentPhase == 0) {
-                // Phase 1: Move to Upper Left (100, 420) & use SpreadShot
-                boss.setMovementPattern(new TargetPointMovement(100f, 420f, 200f));
-                boss.setShootingPattern(new SpreadShot(200f, 3, 30f, 15));
-                System.out.println("[Boss Strategy] Cirno shifted to Upper Left (100, 420) with SpreadShot strategy!");
-            } else {
-                // Phase 2: Move to Upper Right (300, 420) & use RingShot
-                boss.setMovementPattern(new TargetPointMovement(300f, 420f, 200f));
-                boss.setShootingPattern(new RingShot(180f, 8, 10));
-                System.out.println("[Boss Strategy] Cirno shifted to Upper Right (300, 420) with RingShot strategy!");
-            }
-        }
     }
 
     // Generic Instance Method with Bounded Type Parameter <T extends GameObject>

@@ -344,6 +344,30 @@ public class Test {
         System.out.println("Homing Bullet Angle steered toward Boss: " + homingBullet.getAngle() + "°");
 
         System.out.println("\n=== Module 9 Test Completed Successfully ===");
+
+        // ==========================================
+        // MODULE 10: STATE & FACADE PATTERN (LEVEL WAVE MANAGER)
+        // ==========================================
+        System.out.println("\n\n=== TOUHOU OOP PRACTICUM - MODULE 10: STATE & FACADE PATTERNS ===");
+
+        List<GameObject> entities10 = new ArrayList<>();
+        BulletManager bManager10 = new BulletManager();
+        Boss boss10 = new Boss("Cirno", 250);
+        Fairy fairy10 = new Fairy(150, 380, "Stage 1 Fairy", 20);
+
+        com.netlab.frontend.systems.LevelWaveManager waveManager10 = new com.netlab.frontend.systems.LevelWaveManager(entities10, bManager10, boss10, fairy10);
+        System.out.println("Initial Wave Manager State: " + waveManager10.getCurrentState().getClass().getSimpleName());
+
+        waveManager10.update(1.5f);
+        System.out.println("Active Enemy Bullets after Wave 1.5s Update: " + bManager10.getActiveEnemyBullets().size());
+
+        waveManager10.update(2.6f); // Total 4.1s elapsed -> transitions to BossPhase1State
+        System.out.println("Wave Manager State after 4.1s: " + waveManager10.getCurrentState().getClass().getSimpleName());
+
+        waveManager10.update(4.1f); // Total 8.2s elapsed -> transitions to BossPhase2State
+        System.out.println("Wave Manager State after 8.2s: " + waveManager10.getCurrentState().getClass().getSimpleName());
+
+        System.out.println("\n=== Module 10 Test Completed Successfully ===");
     }
 
     // Non-static (Instance) Generic Method with Bounded Type Parameter <T extends GameObject>
