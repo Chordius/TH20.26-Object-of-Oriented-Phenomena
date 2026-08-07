@@ -1,5 +1,6 @@
 package com.netlab.frontend.systems;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -25,9 +26,27 @@ public class AssetManager {
         return instance;
     }
 
+    public void init() {
+        registerAnimationFromSheet("player_idle", "player.png", 32, 48, 0, 8, 0.125f);
+        registerAnimationFromSheet("fairy_idle", "fairy.png", 32, 32, 1, 8, 0.125f);
+        registerAnimationFromSheet("boss_idle", "cirno.png", 64, 64, 0, 4, 0.2f);
+        registerRegionFromSheet("bullet_amulet", "bullets_small.png", 16, 16, 6, 0);
+        registerRegionFromSheet("bullet_danmaku", "bullets_small.png", 16, 16, 2, 0);
+
+        // Correct items.png column coordinates (16x16 per cell):
+        registerRegionFromSheet("item_power", "items.png", 16, 16, 0, 0);
+        registerRegionFromSheet("item_point", "items.png", 16, 16, 0, 1);
+        registerRegionFromSheet("item_bomb", "items.png", 16, 16, 0, 3);
+        registerRegionFromSheet("item_life", "items.png", 16, 16, 0, 5);
+    }
+
     // 1. O(1) Dynamic Flyweight Lookups (No switch statements)
     public TextureRegion getTextureRegion(String key) {
         return textureRegionMap.get(key);
+    }
+
+    public TextureRegion getRegion(String key) {
+        return getTextureRegion(key);
     }
 
     public Animation<TextureRegion> getAnimation(String key) {
@@ -37,7 +56,11 @@ public class AssetManager {
     // 2. Generic Registration Methods
     public Texture loadTexture(String filename) {
         if (!textureMap.containsKey(filename)) {
-            textureMap.put(filename, new Texture(filename));
+            if (Gdx.files != null && Gdx.files.internal(filename).exists()) {
+                textureMap.put(filename, new Texture(Gdx.files.internal(filename)));
+            } else {
+                return null;
+            }
         }
         return textureMap.get(filename);
     }
@@ -48,29 +71,33 @@ public class AssetManager {
 
     public void registerRegionFromSheet(String key, String filename, int tileWidth, int tileHeight, int row, int col) {
         Texture tex = loadTexture(filename);
-        TextureRegion[][] grid = TextureRegion.split(tex, tileWidth, tileHeight);
-        textureRegionMap.put(key, grid[row][col]);
+        if (tex != null) {
+            TextureRegion[][] grid = TextureRegion.split(tex, tileWidth, tileHeight);
+            textureRegionMap.put(key, grid[row][col]);
+        }
     }
 
     public void registerAnimationFromSheet(String key, String filename, int tileWidth, int tileHeight, int row, int numFrames, float frameDuration) {
         Texture tex = loadTexture(filename);
-        TextureRegion[][] grid = TextureRegion.split(tex, tileWidth, tileHeight);
+        if (tex != null) {
+            TextureRegion[][] grid = TextureRegion.split(tex, tileWidth, tileHeight);
 
-        TextureRegion[] frames = new TextureRegion[numFrames];
-        for (int i = 0; i < numFrames; i++) {
-            frames[i] = grid[row][i];
+            TextureRegion[] frames = new TextureRegion[numFrames];
+            for (int i = 0; i < numFrames; i++) {
+                frames[i] = grid[row][i];
+            }
+
+            Animation<TextureRegion> anim = new Animation<>(frameDuration, frames);
+            anim.setPlayMode(Animation.PlayMode.LOOP);
+
+            animationMap.put(key, anim);
+            textureRegionMap.put(key, frames[0]); // Default first frame
         }
-
-        Animation<TextureRegion> anim = new Animation<>(frameDuration, frames);
-        anim.setPlayMode(Animation.PlayMode.LOOP);
-
-        animationMap.put(key, anim);
-        textureRegionMap.put(key, frames[0]); // Default first frame
     }
 
     public void dispose() {
         for (Texture tex : textureMap.values()) {
-            tex.dispose();
+            if (tex != null) tex.dispose();
         }
         textureMap.clear();
         textureRegionMap.clear();
