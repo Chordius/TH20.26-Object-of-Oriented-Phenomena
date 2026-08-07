@@ -1,8 +1,11 @@
 package com.netlab.frontend.systems;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.netlab.frontend.objects.GameObject;
 import com.netlab.frontend.objects.bullets.Bullet;
 import com.netlab.frontend.objects.bullets.BulletType;
+import com.netlab.frontend.objects.items.Item;
+import com.netlab.frontend.objects.items.ItemType;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -89,34 +92,30 @@ public class BulletManager {
         }
     }
 
-    // Bomb / Spell Card execution: Clear all active enemy bullets on screen!
-    public void clearEnemyBullets() {
+    // Bomb / Spell Card execution: Clear active enemy bullets and convert to drop items!
+    public void clearEnemyBullets(List<GameObject> entities) {
         Iterator<Bullet> eIter = activeEnemyBullets.iterator();
         while (eIter.hasNext()) {
             Bullet bullet = eIter.next();
+            if (entities != null) {
+                Item item = EntityFactory.createItem(bullet.getX(), bullet.getY(), ItemType.POINT);
+                entities.add(item);
+            }
             bullet.destroy();
             eIter.remove();
             enemyBulletPool.offer(bullet); // Recycles back to pool!
         }
-        System.out.println("[BulletManager] All active enemy bullets cleared and returned to pool!");
     }
 
-    public void freePlayerBullet(Bullet bullet) {
-        if (activePlayerBullets.remove(bullet)) {
-            bullet.destroy();
-            playerBulletPool.offer(bullet);
-        }
+    public void clearEnemyBullets() {
+        clearEnemyBullets(null);
     }
 
-    public void freeEnemyBullet(Bullet bullet) {
-        if (activeEnemyBullets.remove(bullet)) {
-            bullet.destroy();
-            enemyBulletPool.offer(bullet);
-        }
-    }
-
+    // Dynamic Getters & Clean Recycling Methods for Testing
     public List<Bullet> getActivePlayerBullets() { return activePlayerBullets; }
     public List<Bullet> getActiveEnemyBullets() { return activeEnemyBullets; }
+    public Queue<Bullet> getPlayerBulletPool() { return playerBulletPool; }
+    public Queue<Bullet> getEnemyBulletPool() { return enemyBulletPool; }
     public int getPlayerPoolSize() { return playerBulletPool.size(); }
     public int getEnemyPoolSize() { return enemyBulletPool.size(); }
 }

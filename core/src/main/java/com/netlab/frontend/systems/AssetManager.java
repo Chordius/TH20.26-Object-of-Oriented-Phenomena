@@ -121,7 +121,6 @@ public class AssetManager {
             textureRegionMap.put(key, frames[0]);
         }
     }
-    }
 
     public void dispose() {
         for (Texture tex : textureMap.values()) {
