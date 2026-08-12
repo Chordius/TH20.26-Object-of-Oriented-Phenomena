@@ -203,17 +203,20 @@ public class Player extends EntityShooter {
         if (dx < 0) { // Moving Left (Row 1)
             if (currentDir != -1) {
                 currentDir = -1;
-                setAnimation(assets.getAnimation("player_left_start"));
+                Animation<TextureRegion> anim = assets.getAnimation("player_left_start");
+                if (anim != null) setAnimation(anim);
             }
         } else if (dx > 0) { // Moving Right (Row 2)
             if (currentDir != 1) {
                 currentDir = 1;
-                setAnimation(assets.getAnimation("player_right_start"));
+                Animation<TextureRegion> anim = assets.getAnimation("player_right_start");
+                if (anim != null) setAnimation(anim);
             }
         } else { // Idle / Stationary (Row 0)
             if (currentDir != 0) {
                 currentDir = 0;
-                setAnimation(assets.getAnimation("player_idle"));
+                Animation<TextureRegion> anim = assets.getAnimation("player_idle");
+                if (anim != null) setAnimation(anim);
             }
         }
     }
