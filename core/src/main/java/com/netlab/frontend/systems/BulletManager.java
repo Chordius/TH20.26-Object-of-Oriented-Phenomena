@@ -6,16 +6,8 @@ import com.netlab.frontend.objects.bullets.Bullet;
 import com.netlab.frontend.objects.bullets.BulletType;
 import com.netlab.frontend.objects.items.Item;
 import com.netlab.frontend.objects.items.ItemType;
-<<<<<<< HEAD
 import com.netlab.frontend.objects.patterns.bulletStrategy.FantasySealMovement;
 import com.netlab.frontend.objects.patterns.shootingStrategy.RingShot;
-=======
-<<<<<<< HEAD
-import com.netlab.frontend.objects.patterns.bulletStrategy.FantasySealMovement;
-import com.netlab.frontend.objects.patterns.shootingStrategy.RingShot;
-=======
->>>>>>> Modul-8
->>>>>>> Modul-9
 
 import java.util.ArrayList;
 import java.util.Iterator;
