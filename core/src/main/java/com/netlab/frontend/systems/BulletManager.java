@@ -6,6 +6,7 @@ import com.netlab.frontend.objects.bullets.Bullet;
 import com.netlab.frontend.objects.bullets.BulletType;
 import com.netlab.frontend.objects.items.Item;
 import com.netlab.frontend.objects.items.ItemType;
+import com.netlab.frontend.objects.patterns.bulletStrategy.HomingBulletMovement;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -39,6 +40,28 @@ public class BulletManager {
         }
         activePlayerBullets.add(bullet);
         return bullet;
+    }
+
+    // Spawns 8 giant homing Fantasy Seal spirit orbs for Reimu's Bomb (Spirit Sign "Fantasy Seal")
+    public void spawnFantasySealOrbs(float originX, float originY, GameObject targetEnemy) {
+        int orbCount = 8;
+        float radius = 30f;
+        float speed = 350f;
+        int orbDamage = 35; // 35 damage x 8 orbs = 280 total spell card damage potential!
+
+        for (int i = 0; i < orbCount; i++) {
+            float angleDeg = i * (360f / orbCount);
+            float angleRad = (float) Math.toRadians(angleDeg);
+            float spawnX = originX + (float) Math.cos(angleRad) * radius - 8f;
+            float spawnY = originY + (float) Math.sin(angleRad) * radius - 8f;
+
+            float vx = (float) Math.cos(angleRad) * 100f;
+            float vy = (float) Math.sin(angleRad) * 100f;
+
+            Bullet orb = spawnPlayerBullet(spawnX, spawnY, vx, vy, orbDamage);
+            orb.setMovementPattern(new HomingBulletMovement(targetEnemy, 250f));
+        }
+        System.out.println("[BulletManager] Spawned 8 homing Fantasy Seal Spirit Orbs!");
     }
 
     // Object Pool Spawning for Enemy Bullets via EntityFactory
