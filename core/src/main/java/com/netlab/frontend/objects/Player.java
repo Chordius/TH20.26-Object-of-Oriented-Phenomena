@@ -185,14 +185,14 @@ public class Player extends EntityShooter {
         if (currentDir < 0) {
             Animation<TextureRegion> startAnim = assets.getAnimation("player_left_start");
             Animation<TextureRegion> loopAnim = assets.getAnimation("player_left_loop");
-            if (animation == startAnim && startAnim.isAnimationFinished(stateTime)) {
-                setAnimation(loopAnim);
+            if (startAnim != null && animation == startAnim && startAnim.isAnimationFinished(stateTime)) {
+                if (loopAnim != null) setAnimation(loopAnim);
             }
         } else if (currentDir > 0) {
             Animation<TextureRegion> startAnim = assets.getAnimation("player_right_start");
             Animation<TextureRegion> loopAnim = assets.getAnimation("player_right_loop");
-            if (animation == startAnim && startAnim.isAnimationFinished(stateTime)) {
-                setAnimation(loopAnim);
+            if (startAnim != null && animation == startAnim && startAnim.isAnimationFinished(stateTime)) {
+                if (loopAnim != null) setAnimation(loopAnim);
             }
         }
     }
