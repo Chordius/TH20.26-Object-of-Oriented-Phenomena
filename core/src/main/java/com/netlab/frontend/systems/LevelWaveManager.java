@@ -81,6 +81,16 @@ public class LevelWaveManager {
         return item;
     }
 
+    public boolean areAllFairiesDefeated() {
+        if (fairies == null || fairies.isEmpty()) return true;
+        for (Fairy f : fairies) {
+            if (f != null && !f.isDestroyed()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public void setState(WaveState newState) {
         if (newState != null) {
             this.currentState = newState;

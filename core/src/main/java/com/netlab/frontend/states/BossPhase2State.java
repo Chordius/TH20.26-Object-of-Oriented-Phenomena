@@ -36,9 +36,21 @@ public class BossPhase2State implements WaveState {
             }
         }
 
-        // After 4.0 seconds, transition back to Boss Phase 1!
-        if (phaseTimer >= 4.0f) {
-            manager.setState(new BossPhase1State());
+        // Touhou Dual Transition Condition:
+        // Final phase completes if Boss HP <= 0 OR Spell Card Timeout (6.0s)!
+        boolean bossDefeated = (boss != null && boss.getHp() <= 0);
+        if (bossDefeated || phaseTimer >= 6.0f) {
+            if (bossDefeated) {
+                System.out.println("[BossPhase2State] Boss Cirno Defeated! STAGE CLEARED!");
+            } else {
+                System.out.println("[BossPhase2State] Phase 2 Spell Card TIME OUT (6.0s)! STAGE CLEARED!");
+            }
+            // Clear remaining enemy bullets into items
+            if (manager.getBulletManager() != null) {
+                manager.getBulletManager().clearEnemyBullets(manager.getEntities());
+            }
+            // Loop back to FairyWaveState for continuous gameplay loops
+            manager.setState(new FairyWaveState());
         }
     }
 }

@@ -36,8 +36,19 @@ public class BossPhase1State implements WaveState {
             }
         }
 
-        // After 4.0 seconds, transition state to Boss Phase 2!
-        if (phaseTimer >= 4.0f) {
+        // Touhou Dual Transition Condition:
+        // Transition to BossPhase2State if Boss HP drops <= 125 (50% HP cutoff) OR Spell Card Timeout (6.0s)!
+        boolean hpCutoffReached = (boss != null && boss.getHp() <= 125);
+        if (hpCutoffReached || phaseTimer >= 6.0f) {
+            if (hpCutoffReached) {
+                System.out.println("[BossPhase1State] Boss Phase 1 HP threshold reached (<= 125 HP)!");
+            } else {
+                System.out.println("[BossPhase1State] Phase 1 Spell Card TIME OUT (6.0s)!");
+            }
+            // Clear bullets on phase transition (Authentic Touhou Spell Card clear)
+            if (manager.getBulletManager() != null) {
+                manager.getBulletManager().clearEnemyBullets(manager.getEntities());
+            }
             manager.setState(new BossPhase2State());
         }
     }

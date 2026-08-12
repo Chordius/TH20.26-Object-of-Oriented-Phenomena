@@ -49,8 +49,15 @@ public class FairyWaveState implements WaveState {
             shootTimer = 0f;
         }
 
-        // After 4.0 seconds, transition state to Boss Phase 1!
-        if (waveTimer >= 4.0f) {
+        // Touhou Dual Transition Condition:
+        // Transition to BossPhase1State if ALL FAIRIES DEFEATED OR Wave Timeout (6.0s)!
+        boolean allFairiesDefeated = manager.areAllFairiesDefeated();
+        if (allFairiesDefeated || waveTimer >= 6.0f) {
+            if (allFairiesDefeated) {
+                System.out.println("[FairyWaveState] All wave fairies defeated!");
+            } else {
+                System.out.println("[FairyWaveState] Wave timer timeout (6.0s)!");
+            }
             manager.setState(new BossPhase1State());
         }
     }
