@@ -1,8 +1,13 @@
 package com.netlab.frontend.systems;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.netlab.frontend.objects.GameObject;
 import com.netlab.frontend.objects.bullets.Bullet;
 import com.netlab.frontend.objects.bullets.BulletType;
+import com.netlab.frontend.objects.items.Item;
+import com.netlab.frontend.objects.items.ItemType;
+import com.netlab.frontend.objects.patterns.bulletStrategy.FantasySealMovement;
+import com.netlab.frontend.objects.patterns.shootingStrategy.RingShot;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -36,6 +41,19 @@ public class BulletManager {
         }
         activePlayerBullets.add(bullet);
         return bullet;
+    }
+
+    // Spawns 8 giant homing Fantasy Seal spirit orbs for Player's Bomb Execution
+    // Strategy Composition: RingShot (Spawn Strategy) composed with FantasySealMovement (Trajectory Strategy)
+    public void spawnBombOrbs(float originX, float originY, GameObject targetEnemy) {
+        int orbCount = 8;
+        int orbDamage = 35; // 35 damage x 8 orbs = 280 total spell card damage potential!
+        
+        // RingShot composed with FantasySealMovement strategy!
+        RingShot ringShot = new RingShot(150f, orbCount, orbDamage, new FantasySealMovement(targetEnemy));
+        ringShot.execute(originX, originY, this, true);
+
+        System.out.println("[BulletManager] Spawned 8 Bomb Spirit Orbs via RingShot composed with FantasySealMovement!");
     }
 
     // Object Pool Spawning for Enemy Bullets via EntityFactory
@@ -89,16 +107,24 @@ public class BulletManager {
         }
     }
 
-    // Bomb / Spell Card execution: Clear all active enemy bullets on screen!
-    public void clearEnemyBullets() {
+    // Bomb / Spell Card execution: Clear active enemy bullets and convert to drop items!
+    public void clearEnemyBullets(List<GameObject> entities) {
         Iterator<Bullet> eIter = activeEnemyBullets.iterator();
         while (eIter.hasNext()) {
             Bullet bullet = eIter.next();
+            if (entities != null) {
+                Item item = EntityFactory.createItem(bullet.getX(), bullet.getY(), ItemType.POINT);
+                entities.add(item);
+            }
             bullet.destroy();
             eIter.remove();
             enemyBulletPool.offer(bullet); // Recycles back to pool!
         }
         System.out.println("[BulletManager] All active enemy bullets cleared and returned to pool!");
+    }
+
+    public void clearEnemyBullets() {
+        clearEnemyBullets(null);
     }
 
     public void freePlayerBullet(Bullet bullet) {
@@ -115,8 +141,11 @@ public class BulletManager {
         }
     }
 
+    // Dynamic Getters & Clean Recycling Methods for Testing
     public List<Bullet> getActivePlayerBullets() { return activePlayerBullets; }
     public List<Bullet> getActiveEnemyBullets() { return activeEnemyBullets; }
+    public Queue<Bullet> getPlayerBulletPool() { return playerBulletPool; }
+    public Queue<Bullet> getEnemyBulletPool() { return enemyBulletPool; }
     public int getPlayerPoolSize() { return playerBulletPool.size(); }
     public int getEnemyPoolSize() { return enemyBulletPool.size(); }
 }

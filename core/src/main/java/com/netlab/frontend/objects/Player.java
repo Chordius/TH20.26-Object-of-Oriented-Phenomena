@@ -161,10 +161,25 @@ public class Player extends EntityShooter {
         for (GameObserver obs : observers) obs.onGrazeChanged(grazeCount);
     }
 
+    private float invulnerableTimer = 0f;
+
+    public boolean isInvulnerable() {
+        return invulnerableTimer > 0f;
+    }
+
+    public float getInvulnerableTimer() {
+        return invulnerableTimer;
+    }
+
     @Override
     public void update(float delta) {
         super.update(delta); // Advances stateTime and movementPattern
         shootTimer += delta;  // Accumulates continuous fire timer
+
+        if (invulnerableTimer > 0f) {
+            invulnerableTimer -= delta;
+            if (invulnerableTimer < 0f) invulnerableTimer = 0f;
+        }
 
         // Transition from 4-frame intro tilt (start) to 4-frame continuous loop (loop)
         AssetManager assets = AssetManager.getInstance();
@@ -237,16 +252,39 @@ public class Player extends EntityShooter {
         }
     }
 
-    // Command Pattern Bomb / Spell Card execution
-    public void useBomb(BulletManager bulletManager) {
+    // Command Pattern Bomb / Spell Card execution (Spirit Sign "Fantasy Seal" - 霊符「夢想封印」)
+    public void useBomb(BulletManager bulletManager, List<GameObject> entities) {
         if (spellCards > 0) {
             spellCards--;
+            invulnerableTimer = 5.0f; // 5 seconds invulnerability during Fantasy Seal!
             notifySpellCardsChanged();
-            bulletManager.clearEnemyBullets(); // Clears all enemy bullets on screen!
-            System.out.println(name + " unleashes SPELL CARD (Fantasy Seal)! All enemy bullets cleared!");
+            if (bulletManager != null) {
+                bulletManager.clearEnemyBullets(entities); // Clears all enemy bullets on screen & converts to drop items!
+
+                // Find active target enemy to home into (Boss or Fairy)
+                GameObject target = targetEnemy;
+                if (target == null || target.isDestroyed()) {
+                    if (entities != null) {
+                        for (GameObject obj : entities) {
+                            if (obj instanceof Enemy enemy && !enemy.isDestroyed()) {
+                                target = enemy;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // Spawn 8 giant homing Fantasy Seal spirit orbs surrounding Reimu!
+                bulletManager.spawnBombOrbs(x + width / 2f, y + height / 2f, target);
+            }
+            System.out.println(name + " unleashes SPELL CARD: Spirit Sign Fantasy Seal (霊符「夢想封印」)! All enemy bullets cleared & 8 homing orbs launched!");
         } else {
             System.out.println("No Spell Cards (Bombs) remaining!");
         }
+    }
+
+    public void useBomb(BulletManager bulletManager) {
+        useBomb(bulletManager, null);
     }
 
     public void addGraze() {
@@ -341,6 +379,10 @@ public class Player extends EntityShooter {
     }
 
     public void takeDamage(int damage) {
+        if (isInvulnerable()) {
+            System.out.println(name + " is INVULNERABLE during Spell Card! (0 damage taken)");
+            return;
+        }
         this.hp -= damage;
         if (this.hp < 0) {
             this.hp = 0;
