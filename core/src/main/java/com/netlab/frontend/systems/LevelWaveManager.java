@@ -9,6 +9,7 @@ import com.netlab.frontend.objects.items.ItemType;
 import com.netlab.frontend.states.FairyWaveState;
 import com.netlab.frontend.states.WaveState;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,6 +25,7 @@ public class LevelWaveManager {
     private Player player;
     private Boss boss;
     private Fairy fairy;
+    private List<Fairy> fairies = new ArrayList<>();
 
     private WaveState currentState;
 
@@ -41,6 +43,9 @@ public class LevelWaveManager {
         this.bulletManager = bulletManager;
         this.boss = boss;
         this.fairy = fairy;
+        if (fairy != null) {
+            fairies.add(fairy);
+        }
         
         // Initial state: FairyWaveState
         setState(new FairyWaveState());
@@ -52,7 +57,10 @@ public class LevelWaveManager {
         if (entities != null && !entities.contains(f)) {
             entities.add(f);
         }
-        this.fairy = f;
+        if (!fairies.contains(f)) {
+            fairies.add(f);
+        }
+        this.fairy = f; // Stored as primary/latest fairy for backwards compatibility
         return f;
     }
 
@@ -93,5 +101,6 @@ public class LevelWaveManager {
     public Player getPlayer() { return player; }
     public Boss getBoss() { return boss; }
     public Fairy getFairy() { return fairy; }
+    public List<Fairy> getFairies() { return fairies; }
     public WaveState getCurrentState() { return currentState; }
 }
