@@ -107,7 +107,7 @@ public class Main extends ApplicationAdapter {
         float delta = Gdx.graphics.getDeltaTime();
 
         // 1. Process Input via Command Pattern (InputHandler)
-        inputHandler.handleInput(player, bulletManager, delta);
+        inputHandler.handleInput(player, bulletManager, entities, delta);
 
         // 2. Periodic Enemy Action Scheduler (Module 9 strategy updates)
         updateEnemyScheduler(delta);
