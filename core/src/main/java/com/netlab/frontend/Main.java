@@ -52,6 +52,7 @@ public class Main extends ApplicationAdapter {
         inputHandler = new InputHandler();
         gameHUD = new GameHUD();
 
+<<<<<<< HEAD
         // 1. Dynamic Asset Registration (AssetManager - Singleton + Flyweight)
         AssetManager assets = AssetManager.getInstance();
 
@@ -79,6 +80,10 @@ public class Main extends ApplicationAdapter {
         assets.registerRegionFromSheet("item_point", "items.png", 16, 16, 0, 1);
         assets.registerRegionFromSheet("item_bomb",  "items.png", 16, 16, 0, 3);
         assets.registerRegionFromSheet("item_life",  "items.png", 16, 16, 0, 5);
+=======
+        // 1. Centralized Asset Registration (AssetManager Singleton + Flyweight)
+        AssetManager.getInstance().init();
+>>>>>>> Modul-8
 
         // 2. Instantiate entities via Factory Pattern (EntityFactory)
         player = EntityFactory.createPlayer(200, 50, "Reimu Hakurei", 8, 15, 3);
@@ -178,7 +183,7 @@ public class Main extends ApplicationAdapter {
 
             if (entity.isOffScreen(screenWidth, screenHeight) || entity.isDestroyed()) {
                 System.out.println("Removed via Generic Iterator: " + entity.getClass().getSimpleName());
-                iterator.remove();
+                iterator.remove(); // Safe removal using Iterator!
             }
         }
     }
