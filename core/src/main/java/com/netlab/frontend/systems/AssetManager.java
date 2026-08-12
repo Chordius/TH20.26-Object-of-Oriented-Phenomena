@@ -27,9 +27,22 @@ public class AssetManager {
     }
 
     public void init() {
-        registerAnimationFromSheet("player_idle", "player.png", 32, 48, 0, 8, 0.125f);
+        // Reimu Animations (32x48 per tile, 8 columns)
+        registerAnimationFromSheet("player_idle", "player.png", 32, 48, 0, 0, 8, 0.125f, Animation.PlayMode.LOOP);
+        registerAnimationFromSheet("player_left_start", "player.png", 32, 48, 1, 0, 4, 0.8f, Animation.PlayMode.NORMAL);
+        registerAnimationFromSheet("player_left_loop",  "player.png", 32, 48, 1, 4, 4, 0.12f, Animation.PlayMode.LOOP);
+        registerAnimationFromSheet("player_right_start", "player.png", 32, 48, 2, 0, 4, 0.8f, Animation.PlayMode.NORMAL);
+        registerAnimationFromSheet("player_right_loop",  "player.png", 32, 48, 2, 4, 4, 0.12f, Animation.PlayMode.LOOP);
+
+        // Boss Cirno Animations (64x64 per tile, 4 columns)
+        registerAnimationFromSheet("boss_idle", "cirno.png", 64, 64, 0, 0, 4, 0.2f, Animation.PlayMode.LOOP);
+        registerAnimationFromSheet("boss_left_start", "cirno.png", 64, 64, 1, 0, 2, 0.12f, Animation.PlayMode.NORMAL);
+        registerAnimationFromSheet("boss_left_loop",  "cirno.png", 64, 64, 1, 2, 2, 0.2f,  Animation.PlayMode.LOOP);
+        registerAnimationFromSheet("boss_right_start", "cirno.png", 64, 64, 2, 0, 2, 0.12f, Animation.PlayMode.NORMAL);
+        registerAnimationFromSheet("boss_right_loop",  "cirno.png", 64, 64, 2, 2, 2, 0.2f,  Animation.PlayMode.LOOP);
+
+        // Stage 1 Fairy & Bullets
         registerAnimationFromSheet("fairy_idle", "fairy.png", 32, 32, 1, 8, 0.125f);
-        registerAnimationFromSheet("boss_idle", "cirno.png", 64, 64, 0, 4, 0.2f);
         registerRegionFromSheet("bullet_amulet", "bullets_small.png", 16, 16, 6, 0);
         registerRegionFromSheet("bullet_danmaku", "bullets_small.png", 16, 16, 2, 0);
 
