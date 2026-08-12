@@ -2,23 +2,32 @@ package com.netlab.frontend.objects.patterns.bulletStrategy;
 
 import com.netlab.frontend.objects.GameObject;
 import com.netlab.frontend.objects.bullets.Bullet;
+import com.netlab.frontend.objects.enemies.Enemy;
+
+import java.util.List;
 
 public class FantasySealMovement implements BulletMovementPattern {
     private GameObject target;
+    private List<GameObject> entities;
     private float homingSpeed;
     private float turnSpeed;
     private float driftDuration; // Phase 1 drift time before homing (default 0.4 seconds)
     private float timer = 0f;
 
-    public FantasySealMovement(GameObject target, float homingSpeed, float turnSpeed, float driftDuration) {
+    public FantasySealMovement(GameObject target, List<GameObject> entities, float homingSpeed, float turnSpeed, float driftDuration) {
         this.target = target;
+        this.entities = entities;
         this.homingSpeed = homingSpeed;
         this.turnSpeed = turnSpeed;
         this.driftDuration = driftDuration;
     }
 
+    public FantasySealMovement(GameObject target, List<GameObject> entities) {
+        this(target, entities, 400f, 300f, 0.4f);
+    }
+
     public FantasySealMovement(GameObject target) {
-        this(target, 400f, 300f, 0.4f);
+        this(target, null, 400f, 300f, 0.4f);
     }
 
     @Override
@@ -31,6 +40,26 @@ public class FantasySealMovement implements BulletMovementPattern {
             bullet.setX(bullet.getX() + bullet.getVx() * delta);
             bullet.setY(bullet.getY() + bullet.getVy() * delta);
         } else {
+            // Dynamic Retargeting: If target is null or destroyed, find nearest active enemy from entities list!
+            if (target == null || target.isDestroyed()) {
+                if (entities != null) {
+                    GameObject nearest = null;
+                    float minDistanceSq = Float.MAX_VALUE;
+                    for (GameObject obj : entities) {
+                        if (obj instanceof Enemy enemy && !enemy.isDestroyed()) {
+                            float dx = enemy.getX() - bullet.getX();
+                            float dy = enemy.getY() - bullet.getY();
+                            float distSq = dx * dx + dy * dy;
+                            if (distSq < minDistanceSq) {
+                                minDistanceSq = distSq;
+                                nearest = enemy;
+                            }
+                        }
+                    }
+                    target = nearest;
+                }
+            }
+
             // Phase 2 (TH06 Homing Lock): Bullet steers towards target and accelerates
             if (target != null && !target.isDestroyed()) {
                 float targetAngle = (float) Math.toDegrees(Math.atan2(
@@ -54,6 +83,9 @@ public class FantasySealMovement implements BulletMovementPattern {
 
     public GameObject getTarget() { return target; }
     public void setTarget(GameObject target) { this.target = target; }
+
+    public List<GameObject> getEntities() { return entities; }
+    public void setEntities(List<GameObject> entities) { this.entities = entities; }
 
     public float getHomingSpeed() { return homingSpeed; }
     public void setHomingSpeed(float homingSpeed) { this.homingSpeed = homingSpeed; }

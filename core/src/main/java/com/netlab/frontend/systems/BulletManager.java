@@ -45,15 +45,19 @@ public class BulletManager {
 
     // Spawns 8 giant homing Fantasy Seal spirit orbs for Player's Bomb Execution
     // Strategy Composition: RingShot (Spawn Strategy) composed with FantasySealMovement (Trajectory Strategy)
-    public void spawnBombOrbs(float originX, float originY, GameObject targetEnemy) {
+    public void spawnBombOrbs(float originX, float originY, GameObject targetEnemy, List<GameObject> entities) {
         int orbCount = 8;
         int orbDamage = 35; // 35 damage x 8 orbs = 280 total spell card damage potential!
         
         // RingShot composed with FantasySealMovement strategy!
-        RingShot ringShot = new RingShot(150f, orbCount, orbDamage, new FantasySealMovement(targetEnemy));
+        RingShot ringShot = new RingShot(150f, orbCount, orbDamage, new FantasySealMovement(targetEnemy, entities));
         ringShot.execute(originX, originY, this, true);
 
         System.out.println("[BulletManager] Spawned 8 Bomb Spirit Orbs via RingShot composed with FantasySealMovement!");
+    }
+
+    public void spawnBombOrbs(float originX, float originY, GameObject targetEnemy) {
+        spawnBombOrbs(originX, originY, targetEnemy, null);
     }
 
     // Object Pool Spawning for Enemy Bullets via EntityFactory
