@@ -27,9 +27,9 @@ public class AssetManager {
     public void init() {
         // Reimu Animations (32x48 per tile, 8 columns)
         registerAnimationFromSheet("player_idle", "player.png", 32, 48, 0, 0, 8, 0.125f, Animation.PlayMode.LOOP);
-        registerAnimationFromSheet("player_left_start", "player.png", 32, 48, 1, 0, 4, 0.8f, Animation.PlayMode.NORMAL);
+        registerAnimationFromSheet("player_left_start", "player.png", 32, 48, 1, 0, 4, 0.08f, Animation.PlayMode.NORMAL);
         registerAnimationFromSheet("player_left_loop",  "player.png", 32, 48, 1, 4, 4, 0.12f, Animation.PlayMode.LOOP);
-        registerAnimationFromSheet("player_right_start", "player.png", 32, 48, 2, 0, 4, 0.8f, Animation.PlayMode.NORMAL);
+        registerAnimationFromSheet("player_right_start", "player.png", 32, 48, 2, 0, 4, 0.08f, Animation.PlayMode.NORMAL);
         registerAnimationFromSheet("player_right_loop",  "player.png", 32, 48, 2, 4, 4, 0.12f, Animation.PlayMode.LOOP);
 
         // Boss Cirno Animations (64x64 per tile, 4 columns)
