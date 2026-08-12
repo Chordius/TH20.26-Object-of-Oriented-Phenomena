@@ -276,7 +276,7 @@ public class Player extends EntityShooter {
                 }
 
                 // Spawn 8 giant homing Fantasy Seal spirit orbs surrounding Reimu!
-                bulletManager.spawnFantasySealOrbs(x + width / 2f, y + height / 2f, target);
+                bulletManager.spawnBombOrbs(x + width / 2f, y + height / 2f, target);
             }
             System.out.println(name + " unleashes SPELL CARD: Spirit Sign Fantasy Seal (霊符「夢想封印」)! All enemy bullets cleared & 8 homing orbs launched!");
         } else {
