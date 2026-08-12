@@ -126,6 +126,20 @@ public class BulletManager {
         clearEnemyBullets(null);
     }
 
+    public void freePlayerBullet(Bullet bullet) {
+        if (activePlayerBullets.remove(bullet)) {
+            bullet.destroy();
+            playerBulletPool.offer(bullet);
+        }
+    }
+
+    public void freeEnemyBullet(Bullet bullet) {
+        if (activeEnemyBullets.remove(bullet)) {
+            bullet.destroy();
+            enemyBulletPool.offer(bullet);
+        }
+    }
+
     // Dynamic Getters & Clean Recycling Methods for Testing
     public List<Bullet> getActivePlayerBullets() { return activePlayerBullets; }
     public List<Bullet> getActiveEnemyBullets() { return activeEnemyBullets; }

@@ -170,8 +170,6 @@ public class Player extends EntityShooter {
     public float getInvulnerableTimer() {
         return invulnerableTimer;
     }
-
-
     @Override
     public void update(float delta) {
         super.update(delta); // Advances stateTime and movementPattern
