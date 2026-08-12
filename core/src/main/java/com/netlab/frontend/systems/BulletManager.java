@@ -6,11 +6,8 @@ import com.netlab.frontend.objects.bullets.Bullet;
 import com.netlab.frontend.objects.bullets.BulletType;
 import com.netlab.frontend.objects.items.Item;
 import com.netlab.frontend.objects.items.ItemType;
-<<<<<<< HEAD
 import com.netlab.frontend.objects.patterns.bulletStrategy.FantasySealMovement;
 import com.netlab.frontend.objects.patterns.shootingStrategy.RingShot;
-=======
->>>>>>> Modul-8
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -131,7 +128,6 @@ public class BulletManager {
 
     public void clearEnemyBullets() {
         clearEnemyBullets(null);
-<<<<<<< HEAD
     }
 
     public void freePlayerBullet(Bullet bullet) {
@@ -146,8 +142,6 @@ public class BulletManager {
             bullet.destroy();
             enemyBulletPool.offer(bullet);
         }
-=======
->>>>>>> Modul-8
     }
 
     // Dynamic Getters & Clean Recycling Methods for Testing
