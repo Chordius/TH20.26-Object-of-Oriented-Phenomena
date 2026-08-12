@@ -13,6 +13,7 @@ import com.netlab.frontend.objects.enemies.Fairy;
 import com.netlab.frontend.objects.items.Item;
 import com.netlab.frontend.objects.items.ItemType;
 import com.netlab.frontend.objects.patterns.ShootingPattern;
+import com.netlab.frontend.objects.patterns.shootingStrategy.FrontShot;
 import com.netlab.frontend.objects.patterns.shootingStrategy.LinearShot;
 import com.netlab.frontend.objects.patterns.shootingStrategy.SpreadShot;
 import com.netlab.frontend.objects.patterns.shootingStrategy.HomingNeedleShot;
@@ -90,7 +91,7 @@ public class Player extends EntityShooter {
 
         if (power < 16) {
             // Level 1 (0-15 Power): Single forward amulet stream
-            setShootingPattern(new LinearShot(400f, 10 + power));
+            setShootingPattern(new FrontShot(400f, 10 + power));
         } else if (power < 32) {
             // Level 2 (16-31 Power): Dual forward amulet streams (Narrow in Focus Mode)
             setShootingPattern(new SpreadShot(400f, 2, dualSpreadAngle, 10 + power));

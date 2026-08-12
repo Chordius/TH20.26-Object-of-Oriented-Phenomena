@@ -6,7 +6,8 @@ import com.netlab.frontend.objects.bullets.Bullet;
 import com.netlab.frontend.objects.bullets.BulletType;
 import com.netlab.frontend.objects.items.Item;
 import com.netlab.frontend.objects.items.ItemType;
-import com.netlab.frontend.objects.patterns.bulletStrategy.HomingBulletMovement;
+import com.netlab.frontend.objects.patterns.bulletStrategy.FantasySealMovement;
+import com.netlab.frontend.objects.patterns.shootingStrategy.RingShot;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -43,25 +44,24 @@ public class BulletManager {
     }
 
     // Spawns 8 giant homing Fantasy Seal spirit orbs for Reimu's Bomb (Spirit Sign "Fantasy Seal")
+    // Decoupled Strategy: Spawns via RingShot (ShootingPattern) + attaches FantasySealMovement (BulletMovementPattern)
     public void spawnFantasySealOrbs(float originX, float originY, GameObject targetEnemy) {
         int orbCount = 8;
-        float radius = 30f;
-        float speed = 350f;
         int orbDamage = 35; // 35 damage x 8 orbs = 280 total spell card damage potential!
+        
+        // 1. Use existing RingShot ShootingPattern to spawn 8 radial orbs
+        RingShot ringShot = new RingShot(150f, orbCount, orbDamage);
+        int initialActiveCount = activePlayerBullets.size();
+        ringShot.execute(originX, originY, this, true);
 
-        for (int i = 0; i < orbCount; i++) {
-            float angleDeg = i * (360f / orbCount);
-            float angleRad = (float) Math.toRadians(angleDeg);
-            float spawnX = originX + (float) Math.cos(angleRad) * radius - 8f;
-            float spawnY = originY + (float) Math.sin(angleRad) * radius - 8f;
-
-            float vx = (float) Math.cos(angleRad) * 100f;
-            float vy = (float) Math.sin(angleRad) * 100f;
-
-            Bullet orb = spawnPlayerBullet(spawnX, spawnY, vx, vy, orbDamage);
-            orb.setMovementPattern(new HomingBulletMovement(targetEnemy, 250f));
+        // 2. Attach authentic 2-phase FantasySealMovement pattern to each spawned orb!
+        for (int i = initialActiveCount; i < activePlayerBullets.size(); i++) {
+            Bullet orb = activePlayerBullets.get(i);
+            if (orb != null) {
+                orb.setMovementPattern(new FantasySealMovement(targetEnemy));
+            }
         }
-        System.out.println("[BulletManager] Spawned 8 homing Fantasy Seal Spirit Orbs!");
+        System.out.println("[BulletManager] Spawned 8 Fantasy Seal Spirit Orbs via RingShot + FantasySealMovement!");
     }
 
     // Object Pool Spawning for Enemy Bullets via EntityFactory
