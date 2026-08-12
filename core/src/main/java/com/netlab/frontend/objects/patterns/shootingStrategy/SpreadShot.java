@@ -1,6 +1,8 @@
 package com.netlab.frontend.objects.patterns.shootingStrategy;
 
+import com.netlab.frontend.objects.bullets.Bullet;
 import com.netlab.frontend.objects.patterns.ShootingPattern;
+import com.netlab.frontend.objects.patterns.bulletStrategy.BulletMovementPattern;
 import com.netlab.frontend.systems.BulletManager;
 
 public class SpreadShot implements ShootingPattern {
@@ -8,16 +10,22 @@ public class SpreadShot implements ShootingPattern {
     private int numBullets;
     private float spreadAngleDegrees;
     private int damage;
+    private BulletMovementPattern bulletMovementPattern;
 
-    public SpreadShot(float speed, int numBullets, float spreadAngleDegrees) {
-        this(speed, numBullets, spreadAngleDegrees, 15);
-    }
-
-    public SpreadShot(float speed, int numBullets, float spreadAngleDegrees, int damage) {
+    public SpreadShot(float speed, int numBullets, float spreadAngleDegrees, int damage, BulletMovementPattern bulletMovementPattern) {
         this.speed = speed;
         this.numBullets = numBullets;
         this.spreadAngleDegrees = spreadAngleDegrees;
         this.damage = damage;
+        this.bulletMovementPattern = bulletMovementPattern;
+    }
+
+    public SpreadShot(float speed, int numBullets, float spreadAngleDegrees, int damage) {
+        this(speed, numBullets, spreadAngleDegrees, damage, null);
+    }
+
+    public SpreadShot(float speed, int numBullets, float spreadAngleDegrees) {
+        this(speed, numBullets, spreadAngleDegrees, 15, null);
     }
 
     @Override
@@ -36,10 +44,15 @@ public class SpreadShot implements ShootingPattern {
             float vx = (float) (speed * Math.cos(angleRad));
             float vy = (float) (speed * Math.sin(angleRad));
 
+            Bullet bullet;
             if (isPlayer) {
-                bulletManager.spawnPlayerBullet(originX, originY, vx, vy, bulletDamage);
+                bullet = bulletManager.spawnPlayerBullet(originX, originY, vx, vy, bulletDamage);
             } else {
-                bulletManager.spawnEnemyBullet(originX, originY, vx, vy, bulletDamage);
+                bullet = bulletManager.spawnEnemyBullet(originX, originY, vx, vy, bulletDamage);
+            }
+
+            if (bullet != null && bulletMovementPattern != null) {
+                bullet.setMovementPattern(bulletMovementPattern);
             }
         }
     }
@@ -55,4 +68,7 @@ public class SpreadShot implements ShootingPattern {
 
     public int getDamage() { return damage; }
     public void setDamage(int damage) { this.damage = damage; }
+
+    public BulletMovementPattern getBulletMovementPattern() { return bulletMovementPattern; }
+    public void setBulletMovementPattern(BulletMovementPattern bulletMovementPattern) { this.bulletMovementPattern = bulletMovementPattern; }
 }
