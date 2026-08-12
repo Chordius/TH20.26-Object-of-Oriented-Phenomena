@@ -16,8 +16,8 @@ import com.netlab.frontend.objects.patterns.ShootingPattern;
 import com.netlab.frontend.objects.patterns.shootingStrategy.FrontShot;
 import com.netlab.frontend.objects.patterns.shootingStrategy.LinearShot;
 import com.netlab.frontend.objects.patterns.shootingStrategy.SpreadShot;
-import com.netlab.frontend.objects.patterns.shootingStrategy.HomingNeedleShot;
 import com.netlab.frontend.objects.patterns.shootingStrategy.CompositeShootingPattern;
+import com.netlab.frontend.objects.patterns.bulletStrategy.HomingBulletMovement;
 import com.netlab.frontend.objects.patterns.entityStrategy.EntityMovementPattern;
 import com.netlab.frontend.objects.patterns.entityStrategy.FixedMovement;
 import com.netlab.frontend.systems.AssetManager;
@@ -99,16 +99,16 @@ public class Player extends EntityShooter {
             // Level 3 (32-63 Power): Triple forward amulet streams (Narrow in Focus Mode)
             setShootingPattern(new SpreadShot(400f, 3, spreadAngle, 10 + power));
         } else if (power < 128) {
-            // Level 4 (64-127 Power): Composite Strategy (3-Way Spread + 1 Homing Needle stream)
+            // Level 4 (64-127 Power): Composite Strategy (3-Way Spread + 1 Homing Front Needle stream)
             setShootingPattern(new CompositeShootingPattern(
                 new SpreadShot(400f, 3, spreadAngle, 10 + power),
-                new HomingNeedleShot(400f, 1, 10 + power, targetEnemy)
+                new FrontShot(400f, 10 + power, new HomingBulletMovement(targetEnemy, 180f))
             ));
         } else {
-            // Level 5 MAX (128 Power): Composite Strategy (3-Way Spread + 2 Homing Needle streams)
+            // Level 5 MAX (128 Power): Composite Strategy (3-Way Spread + 2 Homing Spread Needle streams)
             setShootingPattern(new CompositeShootingPattern(
                 new SpreadShot(400f, 3, spreadAngle, 10 + power),
-                new HomingNeedleShot(400f, 2, 10 + power, targetEnemy)
+                new SpreadShot(400f, 2, dualSpreadAngle, 10 + power, new HomingBulletMovement(targetEnemy, 180f))
             ));
         }
     }

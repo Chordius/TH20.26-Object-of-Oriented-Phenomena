@@ -1,17 +1,25 @@
 package com.netlab.frontend.objects.patterns.shootingStrategy;
 
+import com.netlab.frontend.objects.bullets.Bullet;
 import com.netlab.frontend.objects.patterns.ShootingPattern;
+import com.netlab.frontend.objects.patterns.bulletStrategy.BulletMovementPattern;
 import com.netlab.frontend.systems.BulletManager;
 
 public class RingShot implements ShootingPattern {
     private float bulletSpeed;
     private int bulletCount;
     private int damage;
+    private BulletMovementPattern bulletMovementPattern;
 
-    public RingShot(float bulletSpeed, int bulletCount, int damage) {
+    public RingShot(float bulletSpeed, int bulletCount, int damage, BulletMovementPattern bulletMovementPattern) {
         this.bulletSpeed = bulletSpeed;
         this.bulletCount = Math.max(3, bulletCount);
         this.damage = damage;
+        this.bulletMovementPattern = bulletMovementPattern;
+    }
+
+    public RingShot(float bulletSpeed, int bulletCount, int damage) {
+        this(bulletSpeed, bulletCount, damage, null);
     }
 
     @Override
@@ -25,10 +33,15 @@ public class RingShot implements ShootingPattern {
             float vx = (float) (Math.cos(rad) * bulletSpeed);
             float vy = (float) (Math.sin(rad) * bulletSpeed);
 
+            Bullet bullet;
             if (isPlayer) {
-                bulletManager.spawnPlayerBullet(originX, originY, vx, vy, damage);
+                bullet = bulletManager.spawnPlayerBullet(originX, originY, vx, vy, damage);
             } else {
-                bulletManager.spawnEnemyBullet(originX, originY, vx, vy, damage);
+                bullet = bulletManager.spawnEnemyBullet(originX, originY, vx, vy, damage);
+            }
+
+            if (bullet != null && bulletMovementPattern != null) {
+                bullet.setMovementPattern(bulletMovementPattern);
             }
         }
     }
@@ -41,4 +54,7 @@ public class RingShot implements ShootingPattern {
 
     public int getDamage() { return damage; }
     public void setDamage(int damage) { this.damage = damage; }
+
+    public BulletMovementPattern getBulletMovementPattern() { return bulletMovementPattern; }
+    public void setBulletMovementPattern(BulletMovementPattern bulletMovementPattern) { this.bulletMovementPattern = bulletMovementPattern; }
 }
